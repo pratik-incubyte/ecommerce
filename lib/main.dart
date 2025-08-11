@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'src/firebase_options.dart';
 
 
 
-import 'core/di/injection_container.dart';
-import 'core/router/app_router.dart';
-import 'core/constants/app_constants.dart';
+import 'src/core/di/injection_container.dart';
+import 'src/core/router/app_router.dart';
+import 'src/core/constants/app_constants.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,9 +18,9 @@ void main() async {
   // Set up global bloc observer for debugging
   Bloc.observer = AppBlocObserver();
 
-await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-);
+  await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+  );
   
   runApp(const ECommerceApp());
 }
