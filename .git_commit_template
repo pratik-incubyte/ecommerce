@@ -1,0 +1,20 @@
+# type(JIRA-1234 scope): short description
+# Title of the commit, in conventional commit format, below 50 chars
+# Learn more about conventional commits here:
+# https://www.conventionalcommits.org/en/v1.0.0/
+
+# Body: Summarize changes here, imperative and capitalized
+
+# Explain the problem that this commit is solving. Why, not how.
+# Are there side effects or other unintuitive consequences of this
+# change? Here's the place to explain them. Do wrap the text on 72 chars
+
+# Remember that you are writing to make the life of future developers
+# easier. You can't depend on Jira or other links still being live five
+# years from now, so please include the details that you would like to
+# see if you run across this commit when researching an issue.
+
+# Make sure to include the Jira story number if there is one
+# https://company.atlassian.net/browse/JIRA-1234
+#
+# Add AI tool being used as a co-author with the appropriate attribution.
