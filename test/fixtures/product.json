@@ -1,0 +1,14 @@
+{
+  "id": 1,
+    "title": "iPhone 15 Pro Max",
+    "description": "The most advanced iPhone ever with titanium design, A17 Pro chip, and professional camera system. Features a 6.7-inch Super Retina XDR display with ProMotion technology.",
+    "brand": "Apple",
+    "price": 1199.99,
+    "sku": "IPHONE15-PM-256GB-TITAN",
+    "images": [
+        "https://example.com/images/iphone15-pro-max-front.jpg",
+        "https://example.com/images/iphone15-pro-max-back.jpg",
+        "https://example.com/images/iphone15-pro-max-side.jpg"
+    ],
+    "rating": 4.8
+}

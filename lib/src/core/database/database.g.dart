@@ -888,23 +888,8 @@ class $ProductTableTable extends ProductTable
   $ProductTableTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
     'id',
-    aliasedName,
-    false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
-  );
-  static const VerificationMeta _serverIdMeta = const VerificationMeta(
-    'serverId',
-  );
-  @override
-  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
-    'server_id',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -940,28 +925,6 @@ class $ProductTableTable extends ProductTable
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _discountPriceMeta = const VerificationMeta(
-    'discountPrice',
-  );
-  @override
-  late final GeneratedColumn<double> discountPrice = GeneratedColumn<double>(
-    'discount_price',
-    aliasedName,
-    true,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _categoryMeta = const VerificationMeta(
-    'category',
-  );
-  @override
-  late final GeneratedColumn<String> category = GeneratedColumn<String>(
-    'category',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-  );
   static const VerificationMeta _brandMeta = const VerificationMeta('brand');
   @override
   late final GeneratedColumn<String> brand = GeneratedColumn<String>(
@@ -990,168 +953,15 @@ class $ProductTableTable extends ProductTable
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _thumbnailMeta = const VerificationMeta(
-    'thumbnail',
-  );
-  @override
-  late final GeneratedColumn<String> thumbnail = GeneratedColumn<String>(
-    'thumbnail',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _stockMeta = const VerificationMeta('stock');
-  @override
-  late final GeneratedColumn<int> stock = GeneratedColumn<int>(
-    'stock',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
-  static const VerificationMeta _minStockMeta = const VerificationMeta(
-    'minStock',
-  );
-  @override
-  late final GeneratedColumn<int> minStock = GeneratedColumn<int>(
-    'min_stock',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(1),
-  );
-  static const VerificationMeta _weightMeta = const VerificationMeta('weight');
-  @override
-  late final GeneratedColumn<double> weight = GeneratedColumn<double>(
-    'weight',
-    aliasedName,
-    true,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _dimensionsMeta = const VerificationMeta(
-    'dimensions',
-  );
-  @override
-  late final GeneratedColumn<String> dimensions = GeneratedColumn<String>(
-    'dimensions',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _ratingMeta = const VerificationMeta('rating');
-  @override
-  late final GeneratedColumn<double> rating = GeneratedColumn<double>(
-    'rating',
-    aliasedName,
-    false,
-    type: DriftSqlType.double,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0.0),
-  );
-  static const VerificationMeta _reviewCountMeta = const VerificationMeta(
-    'reviewCount',
-  );
-  @override
-  late final GeneratedColumn<int> reviewCount = GeneratedColumn<int>(
-    'review_count',
-    aliasedName,
-    false,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultValue: const Constant(0),
-  );
-  static const VerificationMeta _isFeaturedMeta = const VerificationMeta(
-    'isFeatured',
-  );
-  @override
-  late final GeneratedColumn<bool> isFeatured = GeneratedColumn<bool>(
-    'is_featured',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_featured" IN (0, 1))',
-    ),
-    defaultValue: const Constant(false),
-  );
-  static const VerificationMeta _isActiveMeta = const VerificationMeta(
-    'isActive',
-  );
-  @override
-  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
-    'is_active',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("is_active" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _tagsMeta = const VerificationMeta('tags');
-  @override
-  late final GeneratedColumn<String> tags = GeneratedColumn<String>(
-    'tags',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _createdAtMeta = const VerificationMeta(
-    'createdAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
-    'created_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
-  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
-    'updatedAt',
-  );
-  @override
-  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
-    'updated_at',
-    aliasedName,
-    false,
-    type: DriftSqlType.dateTime,
-    requiredDuringInsert: false,
-    defaultValue: currentDateAndTime,
-  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    serverId,
     name,
     description,
     price,
-    discountPrice,
-    category,
     brand,
     sku,
     images,
-    thumbnail,
-    stock,
-    minStock,
-    weight,
-    dimensions,
-    rating,
-    reviewCount,
-    isFeatured,
-    isActive,
-    tags,
-    createdAt,
-    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1167,12 +977,6 @@ class $ProductTableTable extends ProductTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('server_id')) {
-      context.handle(
-        _serverIdMeta,
-        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
-      );
     }
     if (data.containsKey('name')) {
       context.handle(
@@ -1199,23 +1003,6 @@ class $ProductTableTable extends ProductTable
     } else if (isInserting) {
       context.missing(_priceMeta);
     }
-    if (data.containsKey('discount_price')) {
-      context.handle(
-        _discountPriceMeta,
-        discountPrice.isAcceptableOrUnknown(
-          data['discount_price']!,
-          _discountPriceMeta,
-        ),
-      );
-    }
-    if (data.containsKey('category')) {
-      context.handle(
-        _categoryMeta,
-        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_categoryMeta);
-    }
     if (data.containsKey('brand')) {
       context.handle(
         _brandMeta,
@@ -1234,97 +1021,18 @@ class $ProductTableTable extends ProductTable
         images.isAcceptableOrUnknown(data['images']!, _imagesMeta),
       );
     }
-    if (data.containsKey('thumbnail')) {
-      context.handle(
-        _thumbnailMeta,
-        thumbnail.isAcceptableOrUnknown(data['thumbnail']!, _thumbnailMeta),
-      );
-    }
-    if (data.containsKey('stock')) {
-      context.handle(
-        _stockMeta,
-        stock.isAcceptableOrUnknown(data['stock']!, _stockMeta),
-      );
-    }
-    if (data.containsKey('min_stock')) {
-      context.handle(
-        _minStockMeta,
-        minStock.isAcceptableOrUnknown(data['min_stock']!, _minStockMeta),
-      );
-    }
-    if (data.containsKey('weight')) {
-      context.handle(
-        _weightMeta,
-        weight.isAcceptableOrUnknown(data['weight']!, _weightMeta),
-      );
-    }
-    if (data.containsKey('dimensions')) {
-      context.handle(
-        _dimensionsMeta,
-        dimensions.isAcceptableOrUnknown(data['dimensions']!, _dimensionsMeta),
-      );
-    }
-    if (data.containsKey('rating')) {
-      context.handle(
-        _ratingMeta,
-        rating.isAcceptableOrUnknown(data['rating']!, _ratingMeta),
-      );
-    }
-    if (data.containsKey('review_count')) {
-      context.handle(
-        _reviewCountMeta,
-        reviewCount.isAcceptableOrUnknown(
-          data['review_count']!,
-          _reviewCountMeta,
-        ),
-      );
-    }
-    if (data.containsKey('is_featured')) {
-      context.handle(
-        _isFeaturedMeta,
-        isFeatured.isAcceptableOrUnknown(data['is_featured']!, _isFeaturedMeta),
-      );
-    }
-    if (data.containsKey('is_active')) {
-      context.handle(
-        _isActiveMeta,
-        isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta),
-      );
-    }
-    if (data.containsKey('tags')) {
-      context.handle(
-        _tagsMeta,
-        tags.isAcceptableOrUnknown(data['tags']!, _tagsMeta),
-      );
-    }
-    if (data.containsKey('created_at')) {
-      context.handle(
-        _createdAtMeta,
-        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
-      );
-    }
-    if (data.containsKey('updated_at')) {
-      context.handle(
-        _updatedAtMeta,
-        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
-      );
-    }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => const {};
   @override
   ProductTableData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return ProductTableData(
       id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}id'],
-      )!,
-      serverId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
-        data['${effectivePrefix}server_id'],
+        data['${effectivePrefix}id'],
       ),
       name: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1338,14 +1046,6 @@ class $ProductTableTable extends ProductTable
         DriftSqlType.double,
         data['${effectivePrefix}price'],
       )!,
-      discountPrice: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}discount_price'],
-      ),
-      category: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}category'],
-      )!,
       brand: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}brand'],
@@ -1358,54 +1058,6 @@ class $ProductTableTable extends ProductTable
         DriftSqlType.string,
         data['${effectivePrefix}images'],
       ),
-      thumbnail: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}thumbnail'],
-      ),
-      stock: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}stock'],
-      )!,
-      minStock: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}min_stock'],
-      )!,
-      weight: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}weight'],
-      ),
-      dimensions: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}dimensions'],
-      ),
-      rating: attachedDatabase.typeMapping.read(
-        DriftSqlType.double,
-        data['${effectivePrefix}rating'],
-      )!,
-      reviewCount: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
-        data['${effectivePrefix}review_count'],
-      )!,
-      isFeatured: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_featured'],
-      )!,
-      isActive: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}is_active'],
-      )!,
-      tags: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}tags'],
-      ),
-      createdAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}created_at'],
-      )!,
-      updatedAt: attachedDatabase.typeMapping.read(
-        DriftSqlType.dateTime,
-        data['${effectivePrefix}updated_at'],
-      )!,
     );
   }
 
@@ -1417,11 +1069,8 @@ class $ProductTableTable extends ProductTable
 
 class ProductTableData extends DataClass
     implements Insertable<ProductTableData> {
-  /// Primary key - product ID
-  final int id;
-
   /// Product's unique identifier from the server
-  final String? serverId;
+  final String? id;
 
   /// Product name
   final String name;
@@ -1432,12 +1081,6 @@ class ProductTableData extends DataClass
   /// Product price
   final double price;
 
-  /// Product discount price (if any)
-  final double? discountPrice;
-
-  /// Product category
-  final String category;
-
   /// Product brand
   final String? brand;
 
@@ -1446,82 +1089,26 @@ class ProductTableData extends DataClass
 
   /// Product images (JSON array of image URLs)
   final String? images;
-
-  /// Product thumbnail image
-  final String? thumbnail;
-
-  /// Available stock quantity
-  final int stock;
-
-  /// Minimum stock level
-  final int minStock;
-
-  /// Product weight (in grams)
-  final double? weight;
-
-  /// Product dimensions (JSON object with width, height, depth)
-  final String? dimensions;
-
-  /// Product rating (0-5)
-  final double rating;
-
-  /// Number of reviews
-  final int reviewCount;
-
-  /// Whether product is featured
-  final bool isFeatured;
-
-  /// Whether product is active/available
-  final bool isActive;
-
-  /// Product tags (JSON array)
-  final String? tags;
-
-  /// When the product was created
-  final DateTime createdAt;
-
-  /// When the product was last updated
-  final DateTime updatedAt;
   const ProductTableData({
-    required this.id,
-    this.serverId,
+    this.id,
     required this.name,
     this.description,
     required this.price,
-    this.discountPrice,
-    required this.category,
     this.brand,
     this.sku,
     this.images,
-    this.thumbnail,
-    required this.stock,
-    required this.minStock,
-    this.weight,
-    this.dimensions,
-    required this.rating,
-    required this.reviewCount,
-    required this.isFeatured,
-    required this.isActive,
-    this.tags,
-    required this.createdAt,
-    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
-    if (!nullToAbsent || serverId != null) {
-      map['server_id'] = Variable<String>(serverId);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<String>(id);
     }
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || description != null) {
       map['description'] = Variable<String>(description);
     }
     map['price'] = Variable<double>(price);
-    if (!nullToAbsent || discountPrice != null) {
-      map['discount_price'] = Variable<double>(discountPrice);
-    }
-    map['category'] = Variable<String>(category);
     if (!nullToAbsent || brand != null) {
       map['brand'] = Variable<String>(brand);
     }
@@ -1531,44 +1118,17 @@ class ProductTableData extends DataClass
     if (!nullToAbsent || images != null) {
       map['images'] = Variable<String>(images);
     }
-    if (!nullToAbsent || thumbnail != null) {
-      map['thumbnail'] = Variable<String>(thumbnail);
-    }
-    map['stock'] = Variable<int>(stock);
-    map['min_stock'] = Variable<int>(minStock);
-    if (!nullToAbsent || weight != null) {
-      map['weight'] = Variable<double>(weight);
-    }
-    if (!nullToAbsent || dimensions != null) {
-      map['dimensions'] = Variable<String>(dimensions);
-    }
-    map['rating'] = Variable<double>(rating);
-    map['review_count'] = Variable<int>(reviewCount);
-    map['is_featured'] = Variable<bool>(isFeatured);
-    map['is_active'] = Variable<bool>(isActive);
-    if (!nullToAbsent || tags != null) {
-      map['tags'] = Variable<String>(tags);
-    }
-    map['created_at'] = Variable<DateTime>(createdAt);
-    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
   ProductTableCompanion toCompanion(bool nullToAbsent) {
     return ProductTableCompanion(
-      id: Value(id),
-      serverId: serverId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(serverId),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       name: Value(name),
       description: description == null && nullToAbsent
           ? const Value.absent()
           : Value(description),
       price: Value(price),
-      discountPrice: discountPrice == null && nullToAbsent
-          ? const Value.absent()
-          : Value(discountPrice),
-      category: Value(category),
       brand: brand == null && nullToAbsent
           ? const Value.absent()
           : Value(brand),
@@ -1576,24 +1136,6 @@ class ProductTableData extends DataClass
       images: images == null && nullToAbsent
           ? const Value.absent()
           : Value(images),
-      thumbnail: thumbnail == null && nullToAbsent
-          ? const Value.absent()
-          : Value(thumbnail),
-      stock: Value(stock),
-      minStock: Value(minStock),
-      weight: weight == null && nullToAbsent
-          ? const Value.absent()
-          : Value(weight),
-      dimensions: dimensions == null && nullToAbsent
-          ? const Value.absent()
-          : Value(dimensions),
-      rating: Value(rating),
-      reviewCount: Value(reviewCount),
-      isFeatured: Value(isFeatured),
-      isActive: Value(isActive),
-      tags: tags == null && nullToAbsent ? const Value.absent() : Value(tags),
-      createdAt: Value(createdAt),
-      updatedAt: Value(updatedAt),
     );
   }
 
@@ -1603,142 +1145,57 @@ class ProductTableData extends DataClass
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return ProductTableData(
-      id: serializer.fromJson<int>(json['id']),
-      serverId: serializer.fromJson<String?>(json['serverId']),
+      id: serializer.fromJson<String?>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       description: serializer.fromJson<String?>(json['description']),
       price: serializer.fromJson<double>(json['price']),
-      discountPrice: serializer.fromJson<double?>(json['discountPrice']),
-      category: serializer.fromJson<String>(json['category']),
       brand: serializer.fromJson<String?>(json['brand']),
       sku: serializer.fromJson<String?>(json['sku']),
       images: serializer.fromJson<String?>(json['images']),
-      thumbnail: serializer.fromJson<String?>(json['thumbnail']),
-      stock: serializer.fromJson<int>(json['stock']),
-      minStock: serializer.fromJson<int>(json['minStock']),
-      weight: serializer.fromJson<double?>(json['weight']),
-      dimensions: serializer.fromJson<String?>(json['dimensions']),
-      rating: serializer.fromJson<double>(json['rating']),
-      reviewCount: serializer.fromJson<int>(json['reviewCount']),
-      isFeatured: serializer.fromJson<bool>(json['isFeatured']),
-      isActive: serializer.fromJson<bool>(json['isActive']),
-      tags: serializer.fromJson<String?>(json['tags']),
-      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
-      'serverId': serializer.toJson<String?>(serverId),
+      'id': serializer.toJson<String?>(id),
       'name': serializer.toJson<String>(name),
       'description': serializer.toJson<String?>(description),
       'price': serializer.toJson<double>(price),
-      'discountPrice': serializer.toJson<double?>(discountPrice),
-      'category': serializer.toJson<String>(category),
       'brand': serializer.toJson<String?>(brand),
       'sku': serializer.toJson<String?>(sku),
       'images': serializer.toJson<String?>(images),
-      'thumbnail': serializer.toJson<String?>(thumbnail),
-      'stock': serializer.toJson<int>(stock),
-      'minStock': serializer.toJson<int>(minStock),
-      'weight': serializer.toJson<double?>(weight),
-      'dimensions': serializer.toJson<String?>(dimensions),
-      'rating': serializer.toJson<double>(rating),
-      'reviewCount': serializer.toJson<int>(reviewCount),
-      'isFeatured': serializer.toJson<bool>(isFeatured),
-      'isActive': serializer.toJson<bool>(isActive),
-      'tags': serializer.toJson<String?>(tags),
-      'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
   ProductTableData copyWith({
-    int? id,
-    Value<String?> serverId = const Value.absent(),
+    Value<String?> id = const Value.absent(),
     String? name,
     Value<String?> description = const Value.absent(),
     double? price,
-    Value<double?> discountPrice = const Value.absent(),
-    String? category,
     Value<String?> brand = const Value.absent(),
     Value<String?> sku = const Value.absent(),
     Value<String?> images = const Value.absent(),
-    Value<String?> thumbnail = const Value.absent(),
-    int? stock,
-    int? minStock,
-    Value<double?> weight = const Value.absent(),
-    Value<String?> dimensions = const Value.absent(),
-    double? rating,
-    int? reviewCount,
-    bool? isFeatured,
-    bool? isActive,
-    Value<String?> tags = const Value.absent(),
-    DateTime? createdAt,
-    DateTime? updatedAt,
   }) => ProductTableData(
-    id: id ?? this.id,
-    serverId: serverId.present ? serverId.value : this.serverId,
+    id: id.present ? id.value : this.id,
     name: name ?? this.name,
     description: description.present ? description.value : this.description,
     price: price ?? this.price,
-    discountPrice: discountPrice.present
-        ? discountPrice.value
-        : this.discountPrice,
-    category: category ?? this.category,
     brand: brand.present ? brand.value : this.brand,
     sku: sku.present ? sku.value : this.sku,
     images: images.present ? images.value : this.images,
-    thumbnail: thumbnail.present ? thumbnail.value : this.thumbnail,
-    stock: stock ?? this.stock,
-    minStock: minStock ?? this.minStock,
-    weight: weight.present ? weight.value : this.weight,
-    dimensions: dimensions.present ? dimensions.value : this.dimensions,
-    rating: rating ?? this.rating,
-    reviewCount: reviewCount ?? this.reviewCount,
-    isFeatured: isFeatured ?? this.isFeatured,
-    isActive: isActive ?? this.isActive,
-    tags: tags.present ? tags.value : this.tags,
-    createdAt: createdAt ?? this.createdAt,
-    updatedAt: updatedAt ?? this.updatedAt,
   );
   ProductTableData copyWithCompanion(ProductTableCompanion data) {
     return ProductTableData(
       id: data.id.present ? data.id.value : this.id,
-      serverId: data.serverId.present ? data.serverId.value : this.serverId,
       name: data.name.present ? data.name.value : this.name,
       description: data.description.present
           ? data.description.value
           : this.description,
       price: data.price.present ? data.price.value : this.price,
-      discountPrice: data.discountPrice.present
-          ? data.discountPrice.value
-          : this.discountPrice,
-      category: data.category.present ? data.category.value : this.category,
       brand: data.brand.present ? data.brand.value : this.brand,
       sku: data.sku.present ? data.sku.value : this.sku,
       images: data.images.present ? data.images.value : this.images,
-      thumbnail: data.thumbnail.present ? data.thumbnail.value : this.thumbnail,
-      stock: data.stock.present ? data.stock.value : this.stock,
-      minStock: data.minStock.present ? data.minStock.value : this.minStock,
-      weight: data.weight.present ? data.weight.value : this.weight,
-      dimensions: data.dimensions.present
-          ? data.dimensions.value
-          : this.dimensions,
-      rating: data.rating.present ? data.rating.value : this.rating,
-      reviewCount: data.reviewCount.present
-          ? data.reviewCount.value
-          : this.reviewCount,
-      isFeatured: data.isFeatured.present
-          ? data.isFeatured.value
-          : this.isFeatured,
-      isActive: data.isActive.present ? data.isActive.value : this.isActive,
-      tags: data.tags.present ? data.tags.value : this.tags,
-      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -1746,254 +1203,103 @@ class ProductTableData extends DataClass
   String toString() {
     return (StringBuffer('ProductTableData(')
           ..write('id: $id, ')
-          ..write('serverId: $serverId, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('price: $price, ')
-          ..write('discountPrice: $discountPrice, ')
-          ..write('category: $category, ')
           ..write('brand: $brand, ')
           ..write('sku: $sku, ')
-          ..write('images: $images, ')
-          ..write('thumbnail: $thumbnail, ')
-          ..write('stock: $stock, ')
-          ..write('minStock: $minStock, ')
-          ..write('weight: $weight, ')
-          ..write('dimensions: $dimensions, ')
-          ..write('rating: $rating, ')
-          ..write('reviewCount: $reviewCount, ')
-          ..write('isFeatured: $isFeatured, ')
-          ..write('isActive: $isActive, ')
-          ..write('tags: $tags, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('images: $images')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hashAll([
-    id,
-    serverId,
-    name,
-    description,
-    price,
-    discountPrice,
-    category,
-    brand,
-    sku,
-    images,
-    thumbnail,
-    stock,
-    minStock,
-    weight,
-    dimensions,
-    rating,
-    reviewCount,
-    isFeatured,
-    isActive,
-    tags,
-    createdAt,
-    updatedAt,
-  ]);
+  int get hashCode =>
+      Object.hash(id, name, description, price, brand, sku, images);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ProductTableData &&
           other.id == this.id &&
-          other.serverId == this.serverId &&
           other.name == this.name &&
           other.description == this.description &&
           other.price == this.price &&
-          other.discountPrice == this.discountPrice &&
-          other.category == this.category &&
           other.brand == this.brand &&
           other.sku == this.sku &&
-          other.images == this.images &&
-          other.thumbnail == this.thumbnail &&
-          other.stock == this.stock &&
-          other.minStock == this.minStock &&
-          other.weight == this.weight &&
-          other.dimensions == this.dimensions &&
-          other.rating == this.rating &&
-          other.reviewCount == this.reviewCount &&
-          other.isFeatured == this.isFeatured &&
-          other.isActive == this.isActive &&
-          other.tags == this.tags &&
-          other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.images == this.images);
 }
 
 class ProductTableCompanion extends UpdateCompanion<ProductTableData> {
-  final Value<int> id;
-  final Value<String?> serverId;
+  final Value<String?> id;
   final Value<String> name;
   final Value<String?> description;
   final Value<double> price;
-  final Value<double?> discountPrice;
-  final Value<String> category;
   final Value<String?> brand;
   final Value<String?> sku;
   final Value<String?> images;
-  final Value<String?> thumbnail;
-  final Value<int> stock;
-  final Value<int> minStock;
-  final Value<double?> weight;
-  final Value<String?> dimensions;
-  final Value<double> rating;
-  final Value<int> reviewCount;
-  final Value<bool> isFeatured;
-  final Value<bool> isActive;
-  final Value<String?> tags;
-  final Value<DateTime> createdAt;
-  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
   const ProductTableCompanion({
     this.id = const Value.absent(),
-    this.serverId = const Value.absent(),
     this.name = const Value.absent(),
     this.description = const Value.absent(),
     this.price = const Value.absent(),
-    this.discountPrice = const Value.absent(),
-    this.category = const Value.absent(),
     this.brand = const Value.absent(),
     this.sku = const Value.absent(),
     this.images = const Value.absent(),
-    this.thumbnail = const Value.absent(),
-    this.stock = const Value.absent(),
-    this.minStock = const Value.absent(),
-    this.weight = const Value.absent(),
-    this.dimensions = const Value.absent(),
-    this.rating = const Value.absent(),
-    this.reviewCount = const Value.absent(),
-    this.isFeatured = const Value.absent(),
-    this.isActive = const Value.absent(),
-    this.tags = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   ProductTableCompanion.insert({
     this.id = const Value.absent(),
-    this.serverId = const Value.absent(),
     required String name,
     this.description = const Value.absent(),
     required double price,
-    this.discountPrice = const Value.absent(),
-    required String category,
     this.brand = const Value.absent(),
     this.sku = const Value.absent(),
     this.images = const Value.absent(),
-    this.thumbnail = const Value.absent(),
-    this.stock = const Value.absent(),
-    this.minStock = const Value.absent(),
-    this.weight = const Value.absent(),
-    this.dimensions = const Value.absent(),
-    this.rating = const Value.absent(),
-    this.reviewCount = const Value.absent(),
-    this.isFeatured = const Value.absent(),
-    this.isActive = const Value.absent(),
-    this.tags = const Value.absent(),
-    this.createdAt = const Value.absent(),
-    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
   }) : name = Value(name),
-       price = Value(price),
-       category = Value(category);
+       price = Value(price);
   static Insertable<ProductTableData> custom({
-    Expression<int>? id,
-    Expression<String>? serverId,
+    Expression<String>? id,
     Expression<String>? name,
     Expression<String>? description,
     Expression<double>? price,
-    Expression<double>? discountPrice,
-    Expression<String>? category,
     Expression<String>? brand,
     Expression<String>? sku,
     Expression<String>? images,
-    Expression<String>? thumbnail,
-    Expression<int>? stock,
-    Expression<int>? minStock,
-    Expression<double>? weight,
-    Expression<String>? dimensions,
-    Expression<double>? rating,
-    Expression<int>? reviewCount,
-    Expression<bool>? isFeatured,
-    Expression<bool>? isActive,
-    Expression<String>? tags,
-    Expression<DateTime>? createdAt,
-    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (serverId != null) 'server_id': serverId,
       if (name != null) 'name': name,
       if (description != null) 'description': description,
       if (price != null) 'price': price,
-      if (discountPrice != null) 'discount_price': discountPrice,
-      if (category != null) 'category': category,
       if (brand != null) 'brand': brand,
       if (sku != null) 'sku': sku,
       if (images != null) 'images': images,
-      if (thumbnail != null) 'thumbnail': thumbnail,
-      if (stock != null) 'stock': stock,
-      if (minStock != null) 'min_stock': minStock,
-      if (weight != null) 'weight': weight,
-      if (dimensions != null) 'dimensions': dimensions,
-      if (rating != null) 'rating': rating,
-      if (reviewCount != null) 'review_count': reviewCount,
-      if (isFeatured != null) 'is_featured': isFeatured,
-      if (isActive != null) 'is_active': isActive,
-      if (tags != null) 'tags': tags,
-      if (createdAt != null) 'created_at': createdAt,
-      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   ProductTableCompanion copyWith({
-    Value<int>? id,
-    Value<String?>? serverId,
+    Value<String?>? id,
     Value<String>? name,
     Value<String?>? description,
     Value<double>? price,
-    Value<double?>? discountPrice,
-    Value<String>? category,
     Value<String?>? brand,
     Value<String?>? sku,
     Value<String?>? images,
-    Value<String?>? thumbnail,
-    Value<int>? stock,
-    Value<int>? minStock,
-    Value<double?>? weight,
-    Value<String?>? dimensions,
-    Value<double>? rating,
-    Value<int>? reviewCount,
-    Value<bool>? isFeatured,
-    Value<bool>? isActive,
-    Value<String?>? tags,
-    Value<DateTime>? createdAt,
-    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
   }) {
     return ProductTableCompanion(
       id: id ?? this.id,
-      serverId: serverId ?? this.serverId,
       name: name ?? this.name,
       description: description ?? this.description,
       price: price ?? this.price,
-      discountPrice: discountPrice ?? this.discountPrice,
-      category: category ?? this.category,
       brand: brand ?? this.brand,
       sku: sku ?? this.sku,
       images: images ?? this.images,
-      thumbnail: thumbnail ?? this.thumbnail,
-      stock: stock ?? this.stock,
-      minStock: minStock ?? this.minStock,
-      weight: weight ?? this.weight,
-      dimensions: dimensions ?? this.dimensions,
-      rating: rating ?? this.rating,
-      reviewCount: reviewCount ?? this.reviewCount,
-      isFeatured: isFeatured ?? this.isFeatured,
-      isActive: isActive ?? this.isActive,
-      tags: tags ?? this.tags,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -2001,10 +1307,7 @@ class ProductTableCompanion extends UpdateCompanion<ProductTableData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (serverId.present) {
-      map['server_id'] = Variable<String>(serverId.value);
+      map['id'] = Variable<String>(id.value);
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
@@ -2015,12 +1318,6 @@ class ProductTableCompanion extends UpdateCompanion<ProductTableData> {
     if (price.present) {
       map['price'] = Variable<double>(price.value);
     }
-    if (discountPrice.present) {
-      map['discount_price'] = Variable<double>(discountPrice.value);
-    }
-    if (category.present) {
-      map['category'] = Variable<String>(category.value);
-    }
     if (brand.present) {
       map['brand'] = Variable<String>(brand.value);
     }
@@ -2030,41 +1327,8 @@ class ProductTableCompanion extends UpdateCompanion<ProductTableData> {
     if (images.present) {
       map['images'] = Variable<String>(images.value);
     }
-    if (thumbnail.present) {
-      map['thumbnail'] = Variable<String>(thumbnail.value);
-    }
-    if (stock.present) {
-      map['stock'] = Variable<int>(stock.value);
-    }
-    if (minStock.present) {
-      map['min_stock'] = Variable<int>(minStock.value);
-    }
-    if (weight.present) {
-      map['weight'] = Variable<double>(weight.value);
-    }
-    if (dimensions.present) {
-      map['dimensions'] = Variable<String>(dimensions.value);
-    }
-    if (rating.present) {
-      map['rating'] = Variable<double>(rating.value);
-    }
-    if (reviewCount.present) {
-      map['review_count'] = Variable<int>(reviewCount.value);
-    }
-    if (isFeatured.present) {
-      map['is_featured'] = Variable<bool>(isFeatured.value);
-    }
-    if (isActive.present) {
-      map['is_active'] = Variable<bool>(isActive.value);
-    }
-    if (tags.present) {
-      map['tags'] = Variable<String>(tags.value);
-    }
-    if (createdAt.present) {
-      map['created_at'] = Variable<DateTime>(createdAt.value);
-    }
-    if (updatedAt.present) {
-      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
@@ -2073,27 +1337,13 @@ class ProductTableCompanion extends UpdateCompanion<ProductTableData> {
   String toString() {
     return (StringBuffer('ProductTableCompanion(')
           ..write('id: $id, ')
-          ..write('serverId: $serverId, ')
           ..write('name: $name, ')
           ..write('description: $description, ')
           ..write('price: $price, ')
-          ..write('discountPrice: $discountPrice, ')
-          ..write('category: $category, ')
           ..write('brand: $brand, ')
           ..write('sku: $sku, ')
           ..write('images: $images, ')
-          ..write('thumbnail: $thumbnail, ')
-          ..write('stock: $stock, ')
-          ..write('minStock: $minStock, ')
-          ..write('weight: $weight, ')
-          ..write('dimensions: $dimensions, ')
-          ..write('rating: $rating, ')
-          ..write('reviewCount: $reviewCount, ')
-          ..write('isFeatured: $isFeatured, ')
-          ..write('isActive: $isActive, ')
-          ..write('tags: $tags, ')
-          ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -4718,53 +3968,25 @@ typedef $$UserTableTableProcessedTableManager =
     >;
 typedef $$ProductTableTableCreateCompanionBuilder =
     ProductTableCompanion Function({
-      Value<int> id,
-      Value<String?> serverId,
+      Value<String?> id,
       required String name,
       Value<String?> description,
       required double price,
-      Value<double?> discountPrice,
-      required String category,
       Value<String?> brand,
       Value<String?> sku,
       Value<String?> images,
-      Value<String?> thumbnail,
-      Value<int> stock,
-      Value<int> minStock,
-      Value<double?> weight,
-      Value<String?> dimensions,
-      Value<double> rating,
-      Value<int> reviewCount,
-      Value<bool> isFeatured,
-      Value<bool> isActive,
-      Value<String?> tags,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
+      Value<int> rowid,
     });
 typedef $$ProductTableTableUpdateCompanionBuilder =
     ProductTableCompanion Function({
-      Value<int> id,
-      Value<String?> serverId,
+      Value<String?> id,
       Value<String> name,
       Value<String?> description,
       Value<double> price,
-      Value<double?> discountPrice,
-      Value<String> category,
       Value<String?> brand,
       Value<String?> sku,
       Value<String?> images,
-      Value<String?> thumbnail,
-      Value<int> stock,
-      Value<int> minStock,
-      Value<double?> weight,
-      Value<String?> dimensions,
-      Value<double> rating,
-      Value<int> reviewCount,
-      Value<bool> isFeatured,
-      Value<bool> isActive,
-      Value<String?> tags,
-      Value<DateTime> createdAt,
-      Value<DateTime> updatedAt,
+      Value<int> rowid,
     });
 
 class $$ProductTableTableFilterComposer
@@ -4776,13 +3998,8 @@ class $$ProductTableTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(
+  ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get serverId => $composableBuilder(
-    column: $table.serverId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4801,16 +4018,6 @@ class $$ProductTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<double> get discountPrice => $composableBuilder(
-    column: $table.discountPrice,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get category => $composableBuilder(
-    column: $table.category,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get brand => $composableBuilder(
     column: $table.brand,
     builder: (column) => ColumnFilters(column),
@@ -4825,66 +4032,6 @@ class $$ProductTableTableFilterComposer
     column: $table.images,
     builder: (column) => ColumnFilters(column),
   );
-
-  ColumnFilters<String> get thumbnail => $composableBuilder(
-    column: $table.thumbnail,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get stock => $composableBuilder(
-    column: $table.stock,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get minStock => $composableBuilder(
-    column: $table.minStock,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get weight => $composableBuilder(
-    column: $table.weight,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get dimensions => $composableBuilder(
-    column: $table.dimensions,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<double> get rating => $composableBuilder(
-    column: $table.rating,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<int> get reviewCount => $composableBuilder(
-    column: $table.reviewCount,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isFeatured => $composableBuilder(
-    column: $table.isFeatured,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get tags => $composableBuilder(
-    column: $table.tags,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnFilters(column),
-  );
 }
 
 class $$ProductTableTableOrderingComposer
@@ -4896,13 +4043,8 @@ class $$ProductTableTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(
+  ColumnOrderings<String> get id => $composableBuilder(
     column: $table.id,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get serverId => $composableBuilder(
-    column: $table.serverId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4921,16 +4063,6 @@ class $$ProductTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<double> get discountPrice => $composableBuilder(
-    column: $table.discountPrice,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get category => $composableBuilder(
-    column: $table.category,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get brand => $composableBuilder(
     column: $table.brand,
     builder: (column) => ColumnOrderings(column),
@@ -4945,66 +4077,6 @@ class $$ProductTableTableOrderingComposer
     column: $table.images,
     builder: (column) => ColumnOrderings(column),
   );
-
-  ColumnOrderings<String> get thumbnail => $composableBuilder(
-    column: $table.thumbnail,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get stock => $composableBuilder(
-    column: $table.stock,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get minStock => $composableBuilder(
-    column: $table.minStock,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get weight => $composableBuilder(
-    column: $table.weight,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get dimensions => $composableBuilder(
-    column: $table.dimensions,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<double> get rating => $composableBuilder(
-    column: $table.rating,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<int> get reviewCount => $composableBuilder(
-    column: $table.reviewCount,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isFeatured => $composableBuilder(
-    column: $table.isFeatured,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get isActive => $composableBuilder(
-    column: $table.isActive,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get tags => $composableBuilder(
-    column: $table.tags,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
-    column: $table.createdAt,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
-    column: $table.updatedAt,
-    builder: (column) => ColumnOrderings(column),
-  );
 }
 
 class $$ProductTableTableAnnotationComposer
@@ -5016,11 +4088,8 @@ class $$ProductTableTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
+  GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
-
-  GeneratedColumn<String> get serverId =>
-      $composableBuilder(column: $table.serverId, builder: (column) => column);
 
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
@@ -5033,14 +4102,6 @@ class $$ProductTableTableAnnotationComposer
   GeneratedColumn<double> get price =>
       $composableBuilder(column: $table.price, builder: (column) => column);
 
-  GeneratedColumn<double> get discountPrice => $composableBuilder(
-    column: $table.discountPrice,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<String> get category =>
-      $composableBuilder(column: $table.category, builder: (column) => column);
-
   GeneratedColumn<String> get brand =>
       $composableBuilder(column: $table.brand, builder: (column) => column);
 
@@ -5049,48 +4110,6 @@ class $$ProductTableTableAnnotationComposer
 
   GeneratedColumn<String> get images =>
       $composableBuilder(column: $table.images, builder: (column) => column);
-
-  GeneratedColumn<String> get thumbnail =>
-      $composableBuilder(column: $table.thumbnail, builder: (column) => column);
-
-  GeneratedColumn<int> get stock =>
-      $composableBuilder(column: $table.stock, builder: (column) => column);
-
-  GeneratedColumn<int> get minStock =>
-      $composableBuilder(column: $table.minStock, builder: (column) => column);
-
-  GeneratedColumn<double> get weight =>
-      $composableBuilder(column: $table.weight, builder: (column) => column);
-
-  GeneratedColumn<String> get dimensions => $composableBuilder(
-    column: $table.dimensions,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<double> get rating =>
-      $composableBuilder(column: $table.rating, builder: (column) => column);
-
-  GeneratedColumn<int> get reviewCount => $composableBuilder(
-    column: $table.reviewCount,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<bool> get isFeatured => $composableBuilder(
-    column: $table.isFeatured,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<bool> get isActive =>
-      $composableBuilder(column: $table.isActive, builder: (column) => column);
-
-  GeneratedColumn<String> get tags =>
-      $composableBuilder(column: $table.tags, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get createdAt =>
-      $composableBuilder(column: $table.createdAt, builder: (column) => column);
-
-  GeneratedColumn<DateTime> get updatedAt =>
-      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
 class $$ProductTableTableTableManager
@@ -5124,99 +4143,43 @@ class $$ProductTableTableTableManager
               $$ProductTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
-                Value<String?> serverId = const Value.absent(),
+                Value<String?> id = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<String?> description = const Value.absent(),
                 Value<double> price = const Value.absent(),
-                Value<double?> discountPrice = const Value.absent(),
-                Value<String> category = const Value.absent(),
                 Value<String?> brand = const Value.absent(),
                 Value<String?> sku = const Value.absent(),
                 Value<String?> images = const Value.absent(),
-                Value<String?> thumbnail = const Value.absent(),
-                Value<int> stock = const Value.absent(),
-                Value<int> minStock = const Value.absent(),
-                Value<double?> weight = const Value.absent(),
-                Value<String?> dimensions = const Value.absent(),
-                Value<double> rating = const Value.absent(),
-                Value<int> reviewCount = const Value.absent(),
-                Value<bool> isFeatured = const Value.absent(),
-                Value<bool> isActive = const Value.absent(),
-                Value<String?> tags = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
               }) => ProductTableCompanion(
                 id: id,
-                serverId: serverId,
                 name: name,
                 description: description,
                 price: price,
-                discountPrice: discountPrice,
-                category: category,
                 brand: brand,
                 sku: sku,
                 images: images,
-                thumbnail: thumbnail,
-                stock: stock,
-                minStock: minStock,
-                weight: weight,
-                dimensions: dimensions,
-                rating: rating,
-                reviewCount: reviewCount,
-                isFeatured: isFeatured,
-                isActive: isActive,
-                tags: tags,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
+                rowid: rowid,
               ),
           createCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
-                Value<String?> serverId = const Value.absent(),
+                Value<String?> id = const Value.absent(),
                 required String name,
                 Value<String?> description = const Value.absent(),
                 required double price,
-                Value<double?> discountPrice = const Value.absent(),
-                required String category,
                 Value<String?> brand = const Value.absent(),
                 Value<String?> sku = const Value.absent(),
                 Value<String?> images = const Value.absent(),
-                Value<String?> thumbnail = const Value.absent(),
-                Value<int> stock = const Value.absent(),
-                Value<int> minStock = const Value.absent(),
-                Value<double?> weight = const Value.absent(),
-                Value<String?> dimensions = const Value.absent(),
-                Value<double> rating = const Value.absent(),
-                Value<int> reviewCount = const Value.absent(),
-                Value<bool> isFeatured = const Value.absent(),
-                Value<bool> isActive = const Value.absent(),
-                Value<String?> tags = const Value.absent(),
-                Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
               }) => ProductTableCompanion.insert(
                 id: id,
-                serverId: serverId,
                 name: name,
                 description: description,
                 price: price,
-                discountPrice: discountPrice,
-                category: category,
                 brand: brand,
                 sku: sku,
                 images: images,
-                thumbnail: thumbnail,
-                stock: stock,
-                minStock: minStock,
-                weight: weight,
-                dimensions: dimensions,
-                rating: rating,
-                reviewCount: reviewCount,
-                isFeatured: isFeatured,
-                isActive: isActive,
-                tags: tags,
-                createdAt: createdAt,
-                updatedAt: updatedAt,
+                rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

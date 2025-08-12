@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+        "title": "iPhone 15 Pro Max",
+        "description": "The most advanced iPhone ever with titanium design, A17 Pro chip, and professional camera system. Features a 6.7-inch Super Retina XDR display with ProMotion technology.",
+        "brand": "Apple",
+        "price": 1199.99,
+        "sku": "IPHONE15-PM-256GB-TITAN",
+        "images": [
+            "https://example.com/images/iphone15-pro-max-front.jpg",
+            "https://example.com/images/iphone15-pro-max-back.jpg",
+            "https://example.com/images/iphone15-pro-max-side.jpg"
+        ],
+        "rating": 4.8
+    },
+    {
+        "id": 2,
+        "title": "Samsung Galaxy S24 Ultra",
+        "description": "Premium Android smartphone with S Pen, 200MP camera, and AI-powered features. Built with titanium frame and Gorilla Glass Victus 2.",
+        "brand": "Samsung",
+        "price": 1299.99,
+        "sku": "GALAXY-S24U-512GB-TITANIUM",
+        "images": [
+            "https://example.com/images/galaxy-s24-ultra-front.jpg",
+            "https://example.com/images/galaxy-s24-ultra-back.jpg",
+            "https://example.com/images/galaxy-s24-ultra-spen.jpg"
+        ],
+        "rating": 4.7
+    },
+    {
+        "id": 3,
+        "title": "MacBook Pro 16-inch M3 Max",
+        "description": "Professional laptop with M3 Max chip, 16-inch Liquid Retina XDR display, and up to 22 hours of battery life. Perfect for creative professionals.",
+        "brand": "Apple",
+        "price": 3499.99,
+        "sku": "MBP16-M3MAX-1TB-SILVER",
+        "images": [
+            "https://example.com/images/macbook-pro-16-open.jpg",
+            "https://example.com/images/macbook-pro-16-closed.jpg",
+            "https://example.com/images/macbook-pro-16-side.jpg"
+        ],
+        "rating": 4.9
+    },
+    {
+        "id": 4,
+        "title": "Sony WH-1000XM5 Headphones",
+        "description": "Industry-leading noise canceling wireless headphones with exceptional sound quality, 30-hour battery life, and crystal-clear call quality.",
+        "brand": "Sony",
+        "price": 399.99,
+        "sku": "WH1000XM5-BLACK",
+        "images": [
+            "https://example.com/images/sony-wh1000xm5-front.jpg",
+            "https://example.com/images/sony-wh1000xm5-side.jpg",
+            "https://example.com/images/sony-wh1000xm5-folded.jpg"
+        ],
+        "rating": 4.6
+    },
+    {
+        "id": 5,
+        "title": "Nintendo Switch OLED",
+        "description": "Portable gaming console with vibrant 7-inch OLED screen, enhanced audio, and 64GB internal storage. Play at home or on the go.",
+        "brand": "Nintendo",
+        "price": 349.99,
+        "sku": "SWITCH-OLED-NEON",
+        "images": [
+            "https://example.com/images/switch-oled-front.jpg",
+            "https://example.com/images/switch-oled-handheld.jpg",
+            "https://example.com/images/switch-oled-dock.jpg"
+        ],
+        "rating": 4.5
+    }
+]

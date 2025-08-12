@@ -4,8 +4,6 @@ import '../../features/products/data/repositories/products_repository_impl.dart'
 import '../../features/products/domain/repositories/products_repository.dart';
 import '../../features/products/domain/usecases/get_products_usecase.dart';
 import '../../features/products/domain/usecases/get_product_details_usecase.dart';
-import '../../features/products/domain/usecases/search_products_usecase.dart';
-import '../../features/products/domain/usecases/get_featured_products_usecase.dart';
 import '../../features/products/presentation/bloc/products_bloc.dart';
 import '../../features/products/presentation/bloc/product_details_bloc.dart';
 import 'injection_container.dart';
@@ -37,8 +35,6 @@ Future<void> initProductsDependencies() async {
   // Use cases
   getIt.registerLazySingleton(() => GetProductsUseCase(getIt()));
   getIt.registerLazySingleton(() => GetProductDetailsUseCase(getIt()));
-  getIt.registerLazySingleton(() => SearchProductsUseCase(getIt()));
-  getIt.registerLazySingleton(() => GetFeaturedProductsUseCase(getIt()));
   
   // Blocs
   getIt.registerFactory(
