@@ -132,6 +132,24 @@ class MockProductsLocalDataSource extends _i1.Mock
             ),
           )
           as _i6.Future<_i2.ProductModel>);
+
+  @override
+  _i6.Future<void> cacheProducts(List<_i3.Product>? products) =>
+      (super.noSuchMethod(
+            Invocation.method(#cacheProducts, [products]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
+
+  @override
+  _i6.Future<void> cacheProduct(_i3.Product? product) =>
+      (super.noSuchMethod(
+            Invocation.method(#cacheProduct, [product]),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
+          )
+          as _i6.Future<void>);
 }
 
 /// A class which mocks [Product].

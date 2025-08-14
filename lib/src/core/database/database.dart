@@ -15,15 +15,13 @@ import 'tables/order_table.dart';
 part 'database.g.dart';
 
 /// Main database class for the ecommerce application
-@DriftDatabase(tables: [
-  UserTable,
-  ProductTable,
-  CartTable,
-  OrderTable,
-  OrderItemTable,
-])
+@DriftDatabase(
+  tables: [UserTable, ProductTable, CartTable, OrderTable, OrderItemTable],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
+  // Test-only constructor for in-memory databases
+  AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
   int get schemaVersion => 1;

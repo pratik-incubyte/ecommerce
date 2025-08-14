@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../features/products/data/datasources/products_remote_data_source.dart';
 import '../../features/products/data/datasources/products_local_data_source.dart';
 import '../../features/products/data/repositories/products_repository_impl.dart';
@@ -11,18 +12,17 @@ import 'injection_container.dart';
 /// Initialize products feature dependencies
 Future<void> initProductsDependencies() async {
   // Data sources
+  getIt.registerLazySingleton<FirebaseFirestore>(
+    () => FirebaseFirestore.instance,
+  );
   getIt.registerLazySingleton<ProductsRemoteDataSource>(
-    () => ProductsRemoteDataSourceImpl(
-      dioClient: getIt(),
-    ),
+    () => ProductsRemoteDataSourceImpl(firestore: getIt()),
   );
-  
+
   getIt.registerLazySingleton<ProductsLocalDataSource>(
-    () => ProductsLocalDataSourceImpl(
-      database: getIt(),
-    ),
+    () => ProductsLocalDataSourceImpl(database: getIt()),
   );
-  
+
   // Repository
   getIt.registerLazySingleton<ProductsRepository>(
     () => ProductsRepositoryImpl(
@@ -31,11 +31,11 @@ Future<void> initProductsDependencies() async {
       networkInfo: getIt(),
     ),
   );
-  
+
   // Use cases
   getIt.registerLazySingleton(() => GetProductsUseCase(getIt()));
   getIt.registerLazySingleton(() => GetProductDetailsUseCase(getIt()));
-  
+
   // Blocs
   getIt.registerFactory(
     () => ProductsBloc(
@@ -44,10 +44,8 @@ Future<void> initProductsDependencies() async {
       getFeaturedProductsUseCase: getIt(),
     ),
   );
-  
+
   getIt.registerFactory(
-    () => ProductDetailsBloc(
-      getProductDetailsUseCase: getIt(),
-    ),
+    () => ProductDetailsBloc(getProductDetailsUseCase: getIt()),
   );
 }

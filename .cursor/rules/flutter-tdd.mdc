@@ -1,0 +1,242 @@
+---
+description: Test-Driven Development (TDD) guidelines tailored for this Flutter Clean Architecture project
+alwaysApply: false
+---
+
+You are an expert Flutter developer and TDD coach working in a Clean Architecture, feature-first project using flutter_bloc, dartz, dio, drift, get_it, freezed, mockito, and bloc_test.
+
+## Principles
+
+- Red → Green → Refactor: write a failing test, make it pass with minimal code, then improve the design.
+- Test behavior, not implementation details. Prefer observable outcomes over private internals.
+- Small steps: one assertionable behavior per test; keep tests fast and deterministic.
+- Pure domain first: start from the Domain layer (entities/use cases), then Data (repositories/data sources), then Presentation (blocs/widgets).
+- Isolation by contracts: mock interfaces across layers (e.g., repositories in use case tests; data sources in repository tests).
+
+## What to test by layer
+
+- Domain
+  - Use cases: input validation, happy path, error propagation via `Either<Failure, T>`.
+  - Entities/value objects: invariants and equality.
+- Data
+  - Repositories: mapping between exceptions and Failures; orchestration of remote/local sources and `NetworkInfo` logic; DTO ↔ entity mapping.
+  - Remote data sources: correct HTTP method/URL/headers/body; JSON parsing; throw domain-specific exceptions on non-200 or malformed responses.
+  - Local data sources (drift): CRUD behavior; mapping; error handling; use in-memory DB for tests.
+- Presentation
+  - Blocs: Given-When-Then state transitions; loading/success/error flows; no business logic leaks.
+  - Widgets (as needed): golden tests for critical UI; integrate with fake/bloc using dependency injection.
+
+## Folder and naming conventions
+
+- Mirror `lib/` under `test/`. Example: `lib/src/features/products/domain/usecases/get_products_usecase.dart` → `test/src/features/products/domain/usecases/get_products_usecase_test.dart`.
+- Name tests by behavior: `should_<expected>_when_<condition>()`.
+- Group structure: `group`, `setUp`, then tests using AAA or Given-When-Then.
+
+## Tooling and commands
+
+- Run tests with coverage:
+```bash
+flutter test --coverage -r expanded
+```
+- Generate mocks and code (Mockito, Freezed, JSON, Drift):
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+- Optional HTML coverage report (requires lcov):
+```bash
+genhtml coverage/lcov.info -o coverage/html
+```
+
+## Mockito usage
+
+- Prefer `@GenerateMocks([...])` at the top of a test file to generate type-safe mocks, then import the generated `*.mocks.dart`.
+```dart
+import 'package:mockito/annotations.dart';
+import 'get_products_usecase_test.mocks.dart';
+
+@GenerateMocks([ProductsRepository])
+void main() {
+  // ... use MockProductsRepository
+}
+```
+- Stubbing and verification:
+```dart
+when(mockRepo.getProducts()).thenAnswer((_) async => Right(products));
+verify(mockRepo.getProducts()).called(1);
+verifyNoMoreInteractions(mockRepo);
+```
+
+## Patterns and examples
+
+### Domain: Use case test
+```dart
+import 'package:dartz/dartz.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+
+import 'package:ecommerce/src/core/utils/usecase.dart';
+import 'package:ecommerce/src/features/products/domain/entities/product.dart';
+import 'package:ecommerce/src/features/products/domain/repositories/products_repository.dart';
+import 'package:ecommerce/src/features/products/domain/usecases/get_products_usecase.dart';
+
+import 'get_products_usecase_test.mocks.dart';
+
+@GenerateMocks([ProductsRepository, Product])
+void main() {
+  late ProductsRepository repository;
+  late GetProductsUseCase useCase;
+  late List<Product> products;
+
+  setUp(() {
+    repository = MockProductsRepository();
+    useCase = GetProductsUseCase(repository);
+    products = List.generate(3, (_) => MockProduct());
+  });
+
+  test('should return products on success', () async {
+    when(repository.getProducts()).thenAnswer((_) async => Right(products));
+
+    final result = await useCase(NoParams());
+
+    expect(result, Right(products));
+    verify(repository.getProducts());
+    verifyNoMoreInteractions(repository);
+  });
+}
+```
+
+### Data: Repository test (success and failure mapping)
+```dart
+test('should map remote DTOs to domain and return Right on success', () async {
+  when(networkInfo.isConnected).thenAnswer((_) async => true);
+  when(remote.getProducts()).thenAnswer((_) async => dtoList);
+
+  final result = await repository.getProducts();
+
+  expect(result.isRight(), true);
+  result.fold((_) => fail('expected Right'), (entities) {
+    expect(entities, isA<List<Product>>());
+  });
+});
+
+test('should return Left(ServerFailure) when server throws', () async {
+  when(networkInfo.isConnected).thenAnswer((_) async => true);
+  when(remote.getProducts()).thenThrow(ServerException());
+
+  final result = await repository.getProducts();
+
+  expect(result.isLeft(), true);
+});
+```
+
+### Data: Remote data source test with Dio
+```dart
+test('should call GET /products and parse JSON', () async {
+  when(dio.get(any)).thenAnswer((_) async => Response(
+    requestOptions: RequestOptions(path: '/products'),
+    statusCode: 200,
+    data: jsonDecode(fixture('products.json')),
+  ));
+
+  final result = await dataSource.getProducts();
+
+  expect(result, isA<List<ProductModel>>());
+  verify(dio.get('/products'));
+});
+
+test('should throw ServerException on non-200', () async {
+  when(dio.get(any)).thenAnswer((_) async => Response(
+    requestOptions: RequestOptions(path: '/products'),
+    statusCode: 500,
+  ));
+
+  expect(() => dataSource.getProducts(), throwsA(isA<ServerException>()));
+});
+```
+
+### Data: Local data source (drift) in-memory
+```dart
+setUp(() {
+  db = AppDatabase(NativeDatabase.memory());
+  local = ProductsLocalDataSourceImpl(db);
+});
+
+tearDown(() async => db.close());
+
+test('should insert and read back product row', () async {
+  await local.cacheProducts([productModel]);
+  final rows = await local.getCachedProducts();
+  expect(rows, isNotEmpty);
+});
+```
+
+### Presentation: Bloc test
+```dart
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+
+import 'package:ecommerce/src/features/products/presentation/bloc/products_bloc.dart';
+import 'package:ecommerce/src/features/products/domain/usecases/get_products_usecase.dart';
+
+import 'products_bloc_test.mocks.dart';
+
+@GenerateMocks([GetProductsUseCase])
+void main() {
+  late GetProductsUseCase getProducts;
+
+  setUp(() => getProducts = MockGetProductsUseCase());
+
+  blocTest<ProductsBloc, ProductsState>(
+    'emits [loading, loaded] when products fetched successfully',
+    build: () {
+      when(getProducts.call(any)).thenAnswer((_) async => const Right(<Product>[]));
+      return ProductsBloc(getProducts: getProducts);
+    },
+    act: (bloc) => bloc.add(const ProductsEvent.fetch()),
+    expect: () => [
+      const ProductsState.loading(),
+      const ProductsState.loaded(<Product>[]),
+    ],
+    verify: (_) => verify(getProducts.call(any)).called(1),
+  );
+}
+```
+
+## Workflow checklist (per feature)
+
+1) Domain first
+   - Write failing use case tests.
+   - Generate mocks: `dart run build_runner build --delete-conflicting-outputs`.
+   - Implement minimal use case to go green; refactor.
+2) Data layer
+   - Write repository tests for success/failure and mapping.
+   - Write remote/local data source tests with fixtures/in-memory DB.
+   - Implement data sources and repository to satisfy tests.
+3) Presentation
+   - Write bloc tests covering states and transitions.
+   - Implement bloc and wire up events/states.
+4) Widgets (optional/critical screens)
+   - Write widget or golden tests for key UI flows.
+5) Run full suite and coverage
+   - `flutter test --coverage -r expanded`
+   - Keep tests fast and hermetic (no real network/IO).
+
+## Best practices
+
+- Use `fixtures/` for stable sample payloads. Keep them small and realistic.
+- Avoid time-based flakiness; inject clocks or use fake timers if needed.
+- Verify interactions and ensure `verifyNoMoreInteractions` where appropriate.
+- Favor `const` constructors and Freezed for predictable equality in tests.
+- Keep test setup minimal; extract helpers/builders when repetition grows.
+
+## When to regenerate code
+
+- After adding/modifying: Freezed classes, JSON models, Mockito `@GenerateMocks`, Drift tables.
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+Adhere to these rules to keep tests reliable, fast, and aligned with Clean Architecture boundaries in this codebase.

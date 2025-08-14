@@ -20,7 +20,7 @@ final getIt = GetIt.instance;
 Future<void> initDependencies() async {
   // Core dependencies
   await _initCore();
-  
+
   // Feature dependencies
   await initAuthDependencies();
   await initProductsDependencies();
@@ -33,16 +33,14 @@ Future<void> _initCore() async {
   // External dependencies
   getIt.registerLazySingleton<Connectivity>(() => Connectivity());
   getIt.registerLazySingleton<Dio>(() => Dio());
-  
+
   // Network
   getIt.registerLazySingleton<NetworkInfo>(
     () => NetworkInfoImpl(getIt<Connectivity>()),
   );
-  
-  getIt.registerLazySingleton<DioClient>(
-    () => DioClient(),
-  );
-  
+
+  getIt.registerLazySingleton<DioClient>(() => DioClient());
+
   // Database
   getIt.registerLazySingleton<AppDatabase>(() => AppDatabase());
 }

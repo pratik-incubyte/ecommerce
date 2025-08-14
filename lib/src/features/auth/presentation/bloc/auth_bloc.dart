@@ -1,18 +1,21 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:freezed_annotation/freezed_annotation.dart';
-import '../../domain/entities/user_entity.dart';
-import '../../../../core/error/failures.dart';
+import 'package:ecommerce/src/core/utils/usecase.dart';
+import 'package:ecommerce/src/features/auth/domain/usecases/auth_params.dart';
+import 'package:ecommerce/src/features/auth/domain/usecases/get_current_user_usecase.dart';
+import 'package:ecommerce/src/features/auth/domain/usecases/login_usecase.dart';
+import 'package:ecommerce/src/features/auth/domain/usecases/logout_usecase.dart';
+import 'package:ecommerce/src/features/auth/domain/usecases/register_usecase.dart';
+import 'auth_event.dart';
+import 'auth_state.dart';
 
-part 'auth_event.dart';
-part 'auth_state.dart';
-part 'auth_bloc.freezed.dart';
+export 'auth_event.dart';
+export 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  // Use cases will be injected here
-  final dynamic loginUseCase;
-  final dynamic registerUseCase;
-  final dynamic logoutUseCase;
-  final dynamic getCurrentUserUseCase;
+  final LoginUseCase loginUseCase;
+  final RegisterUseCase registerUseCase;
+  final LogoutUseCase logoutUseCase;
+  final GetCurrentUserUseCase getCurrentUserUseCase;
 
   AuthBloc({
     required this.loginUseCase,
@@ -20,51 +23,78 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     required this.logoutUseCase,
     required this.getCurrentUserUseCase,
   }) : super(const AuthState.initial()) {
-    on<_Login>(_onLogin);
-    on<_Register>(_onRegister);
-    on<_Logout>(_onLogout);
-    on<_GetCurrentUser>(_onGetCurrentUser);
+    on<AuthEvent>((event, emit) async {
+      await event.when(
+        login: (email, password) => _onLogin(email, password, emit),
+        register: (email, password, firstName, lastName) =>
+            _onRegister(email, password, firstName, lastName, emit),
+        logout: () => _onLogout(emit),
+        checkAuthStatus: () => _onCheckAuthStatus(emit),
+      );
+    });
   }
 
-  Future<void> _onLogin(_Login event, Emitter<AuthState> emit) async {
+  Future<void> _onLogin(
+    String email,
+    String password,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthState.loading());
-    // TODO: Implement login logic
-    await Future.delayed(const Duration(seconds: 1));
-    emit(AuthState.authenticated(UserEntity(
-      id: '1',
-      email: 'test@example.com',
-      firstName: 'John',
-      lastName: 'Doe',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    )));
+
+    final params = LoginParams(email: email, password: password);
+    final result = await loginUseCase(params);
+
+    result.fold(
+      (failure) => emit(AuthState.error(failure.message)),
+      (user) => emit(AuthState.authenticated(user)),
+    );
   }
 
-  Future<void> _onRegister(_Register event, Emitter<AuthState> emit) async {
+  Future<void> _onRegister(
+    String email,
+    String password,
+    String firstName,
+    String lastName,
+    Emitter<AuthState> emit,
+  ) async {
     emit(const AuthState.loading());
-    // TODO: Implement register logic
-    await Future.delayed(const Duration(seconds: 1));
-    emit(AuthState.authenticated(UserEntity(
-      id: '1',
-      email: event.email,
-      firstName: event.firstName,
-      lastName: event.lastName,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    )));
+
+    final params = RegisterParams(
+      email: email,
+      password: password,
+      firstName: firstName,
+      lastName: lastName,
+    );
+    final result = await registerUseCase(params);
+
+    result.fold(
+      (failure) => emit(AuthState.error(failure.message)),
+      (user) => emit(AuthState.authenticated(user)),
+    );
   }
 
-  Future<void> _onLogout(_Logout event, Emitter<AuthState> emit) async {
+  Future<void> _onLogout(Emitter<AuthState> emit) async {
     emit(const AuthState.loading());
-    // TODO: Implement logout logic
-    await Future.delayed(const Duration(seconds: 1));
-    emit(const AuthState.unauthenticated());
+
+    final result = await logoutUseCase(const NoParams());
+
+    result.fold(
+      (failure) => emit(AuthState.error(failure.message)),
+      (_) => emit(const AuthState.unauthenticated()),
+    );
   }
 
-  Future<void> _onGetCurrentUser(_GetCurrentUser event, Emitter<AuthState> emit) async {
+  Future<void> _onCheckAuthStatus(Emitter<AuthState> emit) async {
     emit(const AuthState.loading());
-    // TODO: Implement get current user logic
-    await Future.delayed(const Duration(seconds: 1));
-    emit(const AuthState.unauthenticated());
+
+    final result = await getCurrentUserUseCase(const NoParams());
+
+    result.fold((failure) => emit(AuthState.error(failure.message)), (user) {
+      if (user != null) {
+        emit(AuthState.authenticated(user));
+      } else {
+        emit(const AuthState.unauthenticated());
+      }
+    });
   }
 }
