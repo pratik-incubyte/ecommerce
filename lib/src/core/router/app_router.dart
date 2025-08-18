@@ -3,8 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 // Features
-import '../../features/auth/presentation/pages/login_page.dart';
-import '../../features/auth/presentation/pages/register_page.dart';
+import '../../features/auth/presentation/pages/auth_page.dart';
 import '../../features/products/presentation/pages/products_page.dart';
 import '../../features/products/presentation/pages/product_details_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
@@ -13,41 +12,34 @@ import '../../features/orders/presentation/pages/orders_page.dart';
 // Core
 import '../di/injection_container.dart';
 import '../../features/auth/presentation/bloc/auth_bloc.dart';
+import '../widgets/auth_wrapper.dart';
 
 /// Application router configuration
 class AppRouter {
   static final _rootNavigatorKey = GlobalKey<NavigatorState>();
   static final _shellNavigatorKey = GlobalKey<NavigatorState>();
-  
+
   static GoRouter get router => _router;
-  
+
   static final GoRouter _router = GoRouter(
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
     routes: [
-      // Auth routes
+      // Auth route
       GoRoute(
-        path: '/login',
-        name: 'login',
+        path: '/auth',
+        name: 'auth',
         builder: (context, state) => BlocProvider(
           create: (_) => getIt<AuthBloc>(),
-          child: const LoginPage(),
+          child: const AuthPage(),
         ),
       ),
-      GoRoute(
-        path: '/register',
-        name: 'register',
-        builder: (context, state) => BlocProvider(
-          create: (_) => getIt<AuthBloc>(),
-          child: const RegisterPage(),
-        ),
-      ),
-      
-      // Shell route for main navigation
+
+      // Shell route for main navigation (protected routes)
       ShellRoute(
         navigatorKey: _shellNavigatorKey,
         builder: (context, state, child) {
-          return MainShell(child: child);
+          return AuthWrapper(child: MainShell(child: child));
         },
         routes: [
           // Home/Products route
@@ -67,14 +59,14 @@ class AppRouter {
               ),
             ],
           ),
-          
+
           // Cart route
           GoRoute(
             path: '/cart',
             name: 'cart',
             builder: (context, state) => const CartPage(),
           ),
-          
+
           // Orders route
           GoRoute(
             path: '/orders',
@@ -85,8 +77,38 @@ class AppRouter {
       ),
     ],
     redirect: (context, state) {
-      // Add authentication logic here if needed
-      return null;
+      final authBloc = getIt<AuthBloc>();
+      final isAuthRoute = state.uri.path == '/auth';
+
+      return authBloc.state.when(
+        initial: () {
+          // Check auth status on initial load
+          authBloc.add(const AuthEvent.checkAuthStatus());
+          return null;
+        },
+        loading: () => null, // Let loading state handle navigation
+        authenticated: (user) {
+          // User is authenticated
+          if (isAuthRoute) {
+            return '/'; // Redirect to home if trying to access auth page
+          }
+          return null; // Allow access to other routes
+        },
+        unauthenticated: () {
+          // User is not authenticated
+          if (!isAuthRoute) {
+            return '/auth'; // Redirect to auth page
+          }
+          return null; // Allow access to auth page
+        },
+        error: (message) {
+          // On error, redirect to auth page
+          if (!isAuthRoute) {
+            return '/auth';
+          }
+          return null;
+        },
+      );
     },
     errorBuilder: (context, state) => ErrorPage(error: state.error),
   );
@@ -95,9 +117,9 @@ class AppRouter {
 /// Main shell widget with bottom navigation
 class MainShell extends StatelessWidget {
   final Widget child;
-  
+
   const MainShell({Key? key, required this.child}) : super(key: key);
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,10 +129,7 @@ class MainShell extends StatelessWidget {
         currentIndex: _calculateSelectedIndex(context),
         onTap: (index) => _onItemTapped(index, context),
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
             icon: Icon(Icons.shopping_cart),
             label: 'Cart',
@@ -119,23 +138,22 @@ class MainShell extends StatelessWidget {
             icon: Icon(Icons.receipt_long),
             label: 'Orders',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
       ),
     );
   }
-  
+
   static int _calculateSelectedIndex(BuildContext context) {
-    final String location = GoRouter.of(context).routeInformationProvider.value.uri.path;
+    final String location = GoRouter.of(
+      context,
+    ).routeInformationProvider.value.uri.path;
     if (location.startsWith('/cart')) return 1;
     if (location.startsWith('/orders')) return 2;
     if (location.startsWith('/profile')) return 3;
     return 0;
   }
-  
+
   void _onItemTapped(int index, BuildContext context) {
     switch (index) {
       case 0:
@@ -148,33 +166,76 @@ class MainShell extends StatelessWidget {
         GoRouter.of(context).goNamed('orders');
         break;
       case 3:
-        // GoRouter.of(context).goNamed('profile');
+        _showProfileBottomSheet(context);
         break;
     }
+  }
+
+  void _showProfileBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text('Profile'),
+                subtitle: const Text('View and edit your profile'),
+                onTap: () {
+                  Navigator.pop(context);
+                  // TODO: Navigate to profile page when implemented
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.settings),
+                title: const Text('Settings'),
+                subtitle: const Text('App preferences and settings'),
+                onTap: () {
+                  Navigator.pop(context);
+                  // TODO: Navigate to settings page when implemented
+                },
+              ),
+              const Divider(),
+              ListTile(
+                leading: const Icon(Icons.logout, color: Colors.red),
+                title: const Text(
+                  'Sign Out',
+                  style: TextStyle(color: Colors.red),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  // Get AuthBloc from context and trigger logout
+                  final authBloc = getIt<AuthBloc>();
+                  authBloc.add(const AuthEvent.logout());
+                },
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
 /// Error page for navigation errors
 class ErrorPage extends StatelessWidget {
   final Exception? error;
-  
+
   const ErrorPage({Key? key, this.error}) : super(key: key);
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Error'),
-      ),
+      appBar: AppBar(title: const Text('Error')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error,
-              size: 64,
-              color: Colors.red,
-            ),
+            const Icon(Icons.error, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             const Text(
               'Page not found',

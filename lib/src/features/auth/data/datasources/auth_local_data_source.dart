@@ -25,26 +25,54 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<void> cacheUser(UserModel user) async {
     try {
-      await database
-          .into(database.userTable)
-          .insertOnConflictUpdate(
-            UserTableCompanion.insert(
-              serverId: Value(user.id),
-              email: user.email,
-              firstName: user.firstName,
-              lastName: user.lastName,
-              phone: Value(user.phone),
-              profilePicture: Value(user.profilePicture),
-              address: Value(user.address),
-              city: Value(user.city),
-              country: Value(user.country),
-              postalCode: Value(user.postalCode),
-              isVerified: Value(user.isVerified),
-              isActive: Value(user.isActive),
-              createdAt: Value(user.createdAt),
-              updatedAt: Value(user.updatedAt),
-            ),
-          );
+      // Check if user already exists by email
+      final existingUser = await (database.select(
+        database.userTable,
+      )..where((tbl) => tbl.email.equals(user.email))).getSingleOrNull();
+
+      if (existingUser != null) {
+        // Update existing user
+        await (database.update(
+          database.userTable,
+        )..where((tbl) => tbl.email.equals(user.email))).write(
+          UserTableCompanion(
+            serverId: Value(user.id),
+            firstName: Value(user.firstName),
+            lastName: Value(user.lastName),
+            phone: Value(user.phone),
+            profilePicture: Value(user.profilePicture),
+            address: Value(user.address),
+            city: Value(user.city),
+            country: Value(user.country),
+            postalCode: Value(user.postalCode),
+            isVerified: Value(user.isVerified),
+            isActive: Value(user.isActive),
+            updatedAt: Value(user.updatedAt),
+          ),
+        );
+      } else {
+        // Insert new user
+        await database
+            .into(database.userTable)
+            .insert(
+              UserTableCompanion.insert(
+                serverId: Value(user.id),
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                phone: Value(user.phone),
+                profilePicture: Value(user.profilePicture),
+                address: Value(user.address),
+                city: Value(user.city),
+                country: Value(user.country),
+                postalCode: Value(user.postalCode),
+                isVerified: Value(user.isVerified),
+                isActive: Value(user.isActive),
+                createdAt: Value(user.createdAt),
+                updatedAt: Value(user.updatedAt),
+              ),
+            );
+      }
     } catch (e) {
       throw CacheException('Failed to cache user: ${e.toString()}');
     }
@@ -79,7 +107,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<bool> isUserCached() async {
     try {
-      final count = await database.selectOnly(database.userTable)
+      final count = database.selectOnly(database.userTable)
         ..addColumns([database.userTable.id.count()]);
       final result = await count.getSingle();
       return (result.read(database.userTable.id.count()) ?? 0) > 0;

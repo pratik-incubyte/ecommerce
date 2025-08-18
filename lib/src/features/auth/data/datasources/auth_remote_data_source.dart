@@ -68,9 +68,24 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         lastName: params.lastName,
       );
     } on FirebaseAuthException catch (e) {
-      throw ServerException('Registration failed: ${e.message}', code: e.code);
+      // Handle specific Firebase Auth errors
+      String errorMessage = 'Registration failed: ${e.message}';
+      if (e.code == 'network-request-failed') {
+        errorMessage =
+            'Network error: Please check your internet connection and try again.';
+      } else if (e.code == 'too-many-requests') {
+        errorMessage = 'Too many requests. Please try again later.';
+      }
+      throw ServerException(errorMessage, code: e.code);
     } catch (e) {
-      throw ServerException('Registration failed: ${e.toString()}');
+      // Handle general network or other errors
+      String errorMessage = 'Registration failed: ${e.toString()}';
+      if (e.toString().contains('network') ||
+          e.toString().contains('connection')) {
+        errorMessage =
+            'Network error: Please check your internet connection and try again.';
+      }
+      throw ServerException(errorMessage);
     }
   }
 

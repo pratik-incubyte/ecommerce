@@ -37,13 +37,7 @@ Future<void> initProductsDependencies() async {
   getIt.registerLazySingleton(() => GetProductDetailsUseCase(getIt()));
 
   // Blocs
-  getIt.registerFactory(
-    () => ProductsBloc(
-      getProductsUseCase: getIt(),
-      searchProductsUseCase: getIt(),
-      getFeaturedProductsUseCase: getIt(),
-    ),
-  );
+  getIt.registerFactory(() => ProductsBloc(getProductsUseCase: getIt()));
 
   getIt.registerFactory(
     () => ProductDetailsBloc(getProductDetailsUseCase: getIt()),

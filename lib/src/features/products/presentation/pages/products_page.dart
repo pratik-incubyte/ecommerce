@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../../core/di/injection_container.dart';
+import '../bloc/products_bloc.dart';
+import '../widgets/product_card.dart';
 
 class ProductsPage extends StatelessWidget {
   const ProductsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) =>
+          getIt<ProductsBloc>()..add(const ProductsEvent.getProducts()),
+      child: const ProductsView(),
+    );
+  }
+}
+
+class ProductsView extends StatelessWidget {
+  const ProductsView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -18,9 +34,11 @@ class ProductsPage extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
-              GoRouter.of(context).goNamed('login');
+              context.read<ProductsBloc>().add(
+                const ProductsEvent.refreshProducts(),
+              );
             },
           ),
         ],
@@ -32,76 +50,79 @@ class ProductsPage extends StatelessWidget {
           children: [
             const Text(
               'Featured Products',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: AppConstants.defaultPadding),
             Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: AppConstants.defaultPadding,
-                  mainAxisSpacing: AppConstants.defaultPadding,
-                  childAspectRatio: 0.8,
-                ),
-                itemCount: 10,
-                itemBuilder: (context, index) {
-                  return Card(
-                    child: InkWell(
-                      onTap: () {
-                        GoRouter.of(context).goNamed(
-                          'product-details',
-                          pathParameters: {'productId': '${index + 1}'},
-                        );
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Container(
-                              width: double.infinity,
-                              decoration: const BoxDecoration(
+              child: BlocBuilder<ProductsBloc, ProductsState>(
+                builder: (context, state) {
+                  return state.when(
+                    initial: () => const Center(
+                      child: Text('Welcome! Loading products...'),
+                    ),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    loaded: (products) {
+                      if (products.isEmpty) {
+                        return const Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.shopping_bag_outlined,
+                                size: 64,
                                 color: Colors.grey,
-                                borderRadius: BorderRadius.vertical(
-                                  top: Radius.circular(AppConstants.defaultBorderRadius),
-                                ),
                               ),
-                              child: const Icon(
-                                Icons.image,
-                                size: 48,
-                                color: Colors.white,
-                              ),
-                            ),
+                              SizedBox(height: 16),
+                              Text('No products available'),
+                              SizedBox(height: 8),
+                              Text('Check back later for new products!'),
+                            ],
                           ),
-                          Expanded(
-                            flex: 2,
-                            child: Padding(
-                              padding: const EdgeInsets.all(AppConstants.smallPadding),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Product ${index + 1}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    '\$${(index + 1) * 10}.99',
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.primary,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
+                        );
+                      }
+
+                      return RefreshIndicator(
+                        onRefresh: () async {
+                          context.read<ProductsBloc>().add(
+                            const ProductsEvent.refreshProducts(),
+                          );
+                        },
+                        child: GridView.builder(
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: AppConstants.defaultPadding,
+                                mainAxisSpacing: AppConstants.defaultPadding,
+                                childAspectRatio: 0.7,
                               ),
-                            ),
+                          itemCount: products.length,
+                          itemBuilder: (context, index) {
+                            final product = products[index];
+                            return ProductCard(product: product);
+                          },
+                        ),
+                      );
+                    },
+                    error: (message) => Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 64,
+                            color: Colors.red,
+                          ),
+                          const SizedBox(height: 16),
+                          Text('Error: $message'),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              context.read<ProductsBloc>().add(
+                                const ProductsEvent.getProducts(),
+                              );
+                            },
+                            child: const Text('Retry'),
                           ),
                         ],
                       ),
