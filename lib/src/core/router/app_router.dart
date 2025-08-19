@@ -19,13 +19,13 @@ import '../widgets/auth_wrapper.dart';
 
 /// Application router configuration
 class AppRouter {
-  static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+  static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
   static GoRouter get router => _router;
 
   static final GoRouter _router = GoRouter(
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     initialLocation: '/',
     routes: [
       // Deep link routes (outside of shell to avoid auth redirect issues)

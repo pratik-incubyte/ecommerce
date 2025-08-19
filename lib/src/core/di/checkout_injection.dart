@@ -50,6 +50,8 @@ Future<void> initCheckoutDependencies() async {
       processPaymentUseCase: getIt(),
       completeCheckoutUseCase: getIt(),
       checkoutRepository: getIt(),
+      sendOrderNotification: getIt(),
+      clearCartUseCase: getIt(),
     ),
   );
 }

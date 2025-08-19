@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ecommerce/src/features/checkout/presentation/bloc/checkout_bloc.dart';
 
 /// Enhanced widget for the checkout button with proper state handling
-class CheckoutButtonSection extends StatelessWidget {
+class CheckoutButtonSection extends StatefulWidget {
   final CheckoutState state;
   final GlobalKey<FormState> formKey;
   final VoidCallback onCheckout;
@@ -19,9 +19,43 @@ class CheckoutButtonSection extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<CheckoutButtonSection> createState() => _CheckoutButtonSectionState();
+}
+
+class _CheckoutButtonSectionState extends State<CheckoutButtonSection> {
+  bool _wasCompleted = false;
+
+  @override
+  void didUpdateWidget(CheckoutButtonSection oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Check if we've transitioned to completed state
+    final wasCompleted = oldWidget.state.maybeWhen(
+      checkoutCompleted: (_) => true,
+      orElse: () => false,
+    );
+    
+    final isCompleted = widget.state.maybeWhen(
+      checkoutCompleted: (_) => true,
+      orElse: () => false,
+    );
+    
+    if (!wasCompleted && isCompleted) {
+      setState(() {
+        _wasCompleted = true;
+      });
+      debugPrint('CheckoutButtonSection - Detected completion transition');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isEnabled = _isButtonEnabled();
     final isLoading = _isButtonLoading();
+    
+    // Debug logging to track state changes
+    debugPrint('CheckoutButtonSection - State: ${widget.state.toString()}');
+    debugPrint('CheckoutButtonSection - isEnabled: $isEnabled, isLoading: $isLoading');
 
     return Container(
       width: double.infinity,
@@ -67,12 +101,12 @@ class CheckoutButtonSection extends StatelessWidget {
 
   bool _isButtonEnabled() {
     // If forceEnable is explicitly set, use that
-    if (forceEnable != null) {
-      return forceEnable!;
+    if (widget.forceEnable != null) {
+      return widget.forceEnable!;
     }
 
     // Check state-based enabling
-    return state.maybeWhen(
+    return widget.state.maybeWhen(
       calculated: (_, __) => true,
       promoCodeApplied: (_, __) => true,
       promoCodeRemoved: (_) => true,
@@ -82,10 +116,11 @@ class CheckoutButtonSection extends StatelessWidget {
   }
 
   bool _isButtonLoading() {
-    return state.maybeWhen(
+    return widget.state.maybeWhen(
       calculating: () => true,
       processingPayment: (_) => true,
       completingCheckout: (_, __) => true,
+      checkoutCompleted: (_) => false, // Explicitly stop loading when completed
       orElse: () => false,
     );
   }
@@ -93,10 +128,10 @@ class CheckoutButtonSection extends StatelessWidget {
   void _handleCheckout() {
     try {
       // Validate form before processing
-      final isFormValid = formKey.currentState?.validate() ?? false;
+      final isFormValid = widget.formKey.currentState?.validate() ?? false;
 
       if (isFormValid) {
-        onCheckout();
+        widget.onCheckout();
       } else {
         // Form validation failed - the form will show the errors
         debugPrint('CheckoutButton: Form validation failed');
@@ -163,7 +198,7 @@ class CheckoutButtonSection extends StatelessWidget {
       return Icons.lock_outline;
     }
 
-    return state.maybeWhen(
+    return widget.state.maybeWhen(
       calculated: (_, __) => Icons.security,
       promoCodeApplied: (_, __) => Icons.security,
       promoCodeRemoved: (_) => Icons.security,
@@ -174,12 +209,12 @@ class CheckoutButtonSection extends StatelessWidget {
 
   String _getButtonText(double? totalAmount) {
     // Use custom button text if provided
-    if (buttonText != null) {
-      return buttonText!;
+    if (widget.buttonText != null) {
+      return widget.buttonText!;
     }
 
     // Handle error state
-    final errorText = state.maybeWhen(
+    final errorText = widget.state.maybeWhen(
       error: (message, __) => 'Retry Order',
       orElse: () => null,
     );
@@ -196,7 +231,7 @@ class CheckoutButtonSection extends StatelessWidget {
   }
 
   String _getLoadingText() {
-    return state.maybeWhen(
+    return widget.state.maybeWhen(
       calculating: () => 'Calculating...',
       processingPayment: (_) => 'Processing Payment...',
       completingCheckout: (_, __) => 'Completing Order...',
@@ -206,7 +241,7 @@ class CheckoutButtonSection extends StatelessWidget {
 
   double? _getTotalAmount() {
     try {
-      return state.maybeWhen(
+      return widget.state.maybeWhen(
         calculated: (checkout, _) => checkout.totalAmount,
         promoCodeApplied: (_, checkout) => checkout.totalAmount,
         promoCodeRemoved: (checkout) => checkout.totalAmount,

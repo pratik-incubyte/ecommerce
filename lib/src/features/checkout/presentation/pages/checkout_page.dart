@@ -403,8 +403,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   backgroundColor: Colors.green,
                 ),
               );
-              // Navigate to order confirmation or orders page with user ID
-              GoRouter.of(context).goNamed('orders');
+              
+              // Force a frame to render to ensure button state is updated
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                // Add a longer delay to ensure UI updates are visible
+                Future.delayed(const Duration(milliseconds: 1000), () {
+                  if (mounted) {
+                    GoRouter.of(context).goNamed('orders');
+                  }
+                });
+              });
             },
             error: (message, _) {
               ScaffoldMessenger.of(context).showSnackBar(

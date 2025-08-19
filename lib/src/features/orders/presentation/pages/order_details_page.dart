@@ -120,17 +120,37 @@ class _OrderDetailsPageState extends State<OrderDetailsPage> {
   }
 }
 
-class OrderDetailsView extends StatelessWidget {
+class OrderDetailsView extends StatefulWidget {
   final String orderId;
   final String? userId;
 
   const OrderDetailsView({super.key, required this.orderId, this.userId});
 
   @override
+  State<OrderDetailsView> createState() => _OrderDetailsViewState();
+}
+
+class _OrderDetailsViewState extends State<OrderDetailsView> {
+  @override
+  void initState() {
+    super.initState();
+    // Load order details when the view is first created
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final actualUserId = _getUserId(context);
+      context.read<OrdersBloc>().add(
+        OrdersEvent.getOrderDetails(
+          userId: actualUserId,
+          orderId: widget.orderId,
+        ),
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Order #$orderId'),
+        title: Text('Order #${widget.orderId}'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => _handleBackNavigation(context),
@@ -143,7 +163,7 @@ class OrderDetailsView extends StatelessWidget {
               context.read<OrdersBloc>().add(
                 OrdersEvent.getOrderDetails(
                   userId: actualUserId,
-                  orderId: orderId,
+                  orderId: widget.orderId,
                 ),
               );
             },
@@ -178,14 +198,14 @@ class OrderDetailsView extends StatelessWidget {
             loaded: (orders, hasReachedMax, currentPage) {
               // Find the specific order from the loaded orders
               final order = orders.firstWhere(
-                (o) => o.id == orderId,
+                (o) => o.id == widget.orderId,
                 orElse: () => throw Exception('Order not found'),
               );
               return _buildOrderDetails(context, order);
             },
             loadingMore: (orders, currentPage) {
               final order = orders.firstWhere(
-                (o) => o.id == orderId,
+                (o) => o.id == widget.orderId,
                 orElse: () => throw Exception('Order not found'),
               );
               return _buildOrderDetails(context, order);
@@ -194,7 +214,7 @@ class OrderDetailsView extends StatelessWidget {
                 _buildOrderDetails(context, order),
             orderCancelled: (orderId, orders) {
               final order = orders.firstWhere(
-                (o) => o.id == this.orderId,
+                (o) => o.id == widget.orderId,
                 orElse: () => throw Exception('Order not found'),
               );
               return _buildOrderDetails(context, order);
@@ -203,7 +223,7 @@ class OrderDetailsView extends StatelessWidget {
                 ? _buildOrderDetails(
                     context,
                     orders.firstWhere(
-                      (o) => o.id == orderId,
+                      (o) => o.id == widget.orderId,
                       orElse: () => throw Exception('Order not found'),
                     ),
                   )
@@ -221,7 +241,7 @@ class OrderDetailsView extends StatelessWidget {
         context.read<OrdersBloc>().add(
           OrdersEvent.getOrderDetails(
             userId: actualUserId,
-            orderId: orderId,
+            orderId: widget.orderId,
           ),
         );
       },
@@ -646,8 +666,10 @@ class OrderDetailsView extends StatelessWidget {
 
   Widget _buildAddressText(Map<String, dynamic> address) {
     return Text(
-      '${address['street'] ?? ''}\n'
-      '${address['city'] ?? ''}, ${address['state'] ?? ''} ${address['zipCode'] ?? ''}\n'
+      '${address['firstName'] ?? ''} ${address['lastName'] ?? ''}\n'
+      '${address['addressLine1'] ?? ''}\n'
+      '${address['addressLine2'] ?? ''}\n'
+      '${address['city'] ?? ''}, ${address['state'] ?? ''} ${address['postalCode'] ?? ''}\n'
       '${address['country'] ?? ''}',
     );
   }
@@ -684,7 +706,7 @@ class OrderDetailsView extends StatelessWidget {
                 context.read<OrdersBloc>().add(
                   OrdersEvent.getOrderDetails(
                     userId: actualUserId,
-                    orderId: orderId,
+                    orderId: widget.orderId,
                   ),
                 );
               },
@@ -735,15 +757,15 @@ class OrderDetailsView extends StatelessWidget {
   /// Get authenticated user ID with fallback
   String _getUserId(BuildContext context) {
     // First try to use the passed userId
-    if (userId != null && userId!.isNotEmpty && userId != '1') {
-      return userId!;
+    if (widget.userId != null && widget.userId!.isNotEmpty && widget.userId != '1') {
+      return widget.userId!;
     }
     
     // Then try to get from AuthBloc
     final authState = context.read<AuthBloc>().state;
     return authState.whenOrNull(
       authenticated: (user) => user.id,
-    ) ?? userId ?? '1'; // Final fallback for demo
+    ) ?? widget.userId ?? '1'; // Final fallback for demo
   }
 
   /// Handle back navigation with smart routing

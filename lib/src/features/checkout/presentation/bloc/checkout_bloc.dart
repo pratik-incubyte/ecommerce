@@ -3,6 +3,8 @@ import 'package:ecommerce/src/features/checkout/domain/usecases/calculate_checko
 import 'package:ecommerce/src/features/checkout/domain/usecases/process_payment_usecase.dart';
 import 'package:ecommerce/src/features/checkout/domain/usecases/complete_checkout_usecase.dart';
 import 'package:ecommerce/src/features/checkout/domain/repositories/checkout_repository.dart';
+import 'package:ecommerce/src/features/cart/domain/usecases/clear_cart_usecase.dart';
+import '../../../../core/notifications/domain/usecases/send_order_notification.dart';
 import 'checkout_event.dart';
 import 'checkout_state.dart';
 
@@ -15,12 +17,16 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
   final ProcessPaymentUseCase processPaymentUseCase;
   final CompleteCheckoutUseCase completeCheckoutUseCase;
   final CheckoutRepository checkoutRepository;
+  final SendOrderNotification sendOrderNotification;
+  final ClearCartUseCase clearCartUseCase;
 
   CheckoutBloc({
     required this.calculateCheckoutUseCase,
     required this.processPaymentUseCase,
     required this.completeCheckoutUseCase,
     required this.checkoutRepository,
+    required this.sendOrderNotification,
+    required this.clearCartUseCase,
   }) : super(const CheckoutState.initial()) {
     on<CheckoutEvent>((event, emit) async {
       await event.when(
@@ -364,11 +370,51 @@ class CheckoutBloc extends Bloc<CheckoutEvent, CheckoutState> {
       CompleteCheckoutParams(checkout: checkout, paymentResult: paymentResult),
     );
 
-    result.fold(
-      (failure) => emit(
-        CheckoutState.error(message: failure.message, checkout: checkout),
-      ),
-      (order) => emit(CheckoutState.checkoutCompleted(order: order)),
+    await result.fold(
+      (failure) async {
+        emit(CheckoutState.error(message: failure.message, checkout: checkout));
+      },
+      (order) async {
+        // Clear the user's cart after successful order completion
+        try {
+          final clearCartResult = await clearCartUseCase(
+            ClearCartParams(userId: checkout.userId),
+          );
+          
+          clearCartResult.fold(
+            (failure) => print('Cart clearing failed: ${failure.message}'),
+            (_) => print('Cart cleared successfully after order completion'),
+          );
+        } catch (e) {
+          // Log cart clearing error but don't fail checkout
+          print('Error clearing cart after order completion: $e');
+        }
+        
+        // Send order confirmation notification (don't fail checkout if notification fails)
+        try {
+          final notificationResult = await sendOrderNotification(
+            SendOrderNotificationParams(
+              userId: checkout.userId,
+              orderId: order.id!,
+              orderTotal: order.totalAmount.toStringAsFixed(2),
+            ),
+          );
+          
+          // Log notification result but don't fail checkout
+          notificationResult.fold(
+            (failure) => print('Notification sending failed: ${failure.message}'),
+            (_) => print('Order notification sent successfully'),
+          );
+        } catch (e) {
+          // Log notification error but don't fail checkout
+          print('Error sending order notification: $e');
+        }
+        
+        // Check if emit is still valid before calling
+        if (!emit.isDone) {
+          emit(CheckoutState.checkoutCompleted(order: order));
+        }
+      },
     );
   }
 

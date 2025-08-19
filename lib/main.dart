@@ -9,6 +9,8 @@ import 'src/core/router/app_router.dart';
 import 'src/core/constants/app_constants.dart';
 import 'src/core/utils/firestore_sample_data.dart';
 import 'src/core/services/deep_link_service.dart';
+import 'src/core/notifications/domain/usecases/initialize_notifications.dart';
+import 'src/core/utils/usecase.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,6 +21,10 @@ void main() async {
   Bloc.observer = AppBlocObserver();
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Initialize push notifications
+  final initializeNotifications = getIt<InitializeNotifications>();
+  await initializeNotifications(NoParams());
 
   // Add sample data to Firestore if collection is empty
   if (await FirestoreSampleData.isProductsCollectionEmpty()) {
