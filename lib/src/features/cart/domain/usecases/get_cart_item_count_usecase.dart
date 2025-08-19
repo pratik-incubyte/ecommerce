@@ -2,24 +2,23 @@ import 'package:dartz/dartz.dart';
 import 'package:equatable/equatable.dart';
 import 'package:ecommerce/src/core/error/failures.dart';
 import 'package:ecommerce/src/core/utils/usecase.dart';
-import 'package:ecommerce/src/features/cart/domain/entities/cart.dart';
 import 'package:ecommerce/src/features/cart/domain/repositories/cart_repository.dart';
 
-class GetCartItemsUseCase implements UseCase<Cart, GetCartItemsParams> {
+class GetCartItemCountUseCase implements UseCase<int, GetCartItemCountParams> {
   final CartRepository repository;
   
-  GetCartItemsUseCase(this.repository);
+  GetCartItemCountUseCase(this.repository);
 
   @override
-  Future<Either<Failure, Cart>> call(GetCartItemsParams params) {
-    return repository.getCart(params.userId);
+  Future<Either<Failure, int>> call(GetCartItemCountParams params) {
+    return repository.getCartItemCount(params.userId);
   }
 }
 
-class GetCartItemsParams extends Params {
+class GetCartItemCountParams extends Params {
   final String userId;
 
-  const GetCartItemsParams({required this.userId});
+  const GetCartItemCountParams({required this.userId});
 
   @override
   List<Object?> get props => [userId];
