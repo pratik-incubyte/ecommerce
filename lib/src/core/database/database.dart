@@ -24,7 +24,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(QueryExecutor e) : super(e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -33,7 +33,25 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       onUpgrade: (Migrator m, int from, int to) async {
-        // Handle database migrations here
+        if (from == 1 && to == 2) {
+          // Migrate from integer userId to text userId
+          await m.database.customStatement('ALTER TABLE orders RENAME TO orders_old');
+          await m.createTable(orderTable);
+          
+          // Copy data with userId converted to text
+          await m.database.customStatement('''
+            INSERT INTO orders (id, serverId, userId, status, totalAmount, discountAmount,
+                               shippingAddress, billingAddress, paymentMethod, paymentStatus,
+                               shippingMethod, trackingNumber, notes, createdAt, updatedAt)
+            SELECT id, serverId, CAST(userId AS TEXT), status, totalAmount, discountAmount,
+                   shippingAddress, billingAddress, paymentMethod, paymentStatus,
+                   shippingMethod, trackingNumber, notes, createdAt, updatedAt
+            FROM orders_old
+          ''');
+          
+          // Drop old table
+          await m.database.customStatement('DROP TABLE orders_old');
+        }
       },
     );
   }

@@ -15,13 +15,13 @@ sealed class OrdersEvent with _$OrdersEvent {
   /// Get order details by ID
   const factory OrdersEvent.getOrderDetails({
     required String userId,
-    required int orderId,
+    required String orderId,
   }) = _GetOrderDetails;
 
   /// Cancel an order
   const factory OrdersEvent.cancelOrder({
     required String userId,
-    required int orderId,
+    required String orderId,
   }) = _CancelOrder;
 
   /// Refresh orders list

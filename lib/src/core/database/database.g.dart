@@ -2113,16 +2113,12 @@ class $OrderTableTable extends OrderTable
   $OrderTableTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
     'id',
     aliasedName,
     false,
-    hasAutoIncrement: true,
-    type: DriftSqlType.int,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'PRIMARY KEY AUTOINCREMENT',
-    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
   );
   static const VerificationMeta _serverIdMeta = const VerificationMeta(
     'serverId',
@@ -2138,11 +2134,11 @@ class $OrderTableTable extends OrderTable
   );
   static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
   @override
-  late final GeneratedColumn<int> userId = GeneratedColumn<int>(
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
     'user_id',
     aliasedName,
     false,
-    type: DriftSqlType.int,
+    type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _statusMeta = const VerificationMeta('status');
@@ -2307,6 +2303,8 @@ class $OrderTableTable extends OrderTable
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
     }
     if (data.containsKey('server_id')) {
       context.handle(
@@ -2442,7 +2440,7 @@ class $OrderTableTable extends OrderTable
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return OrderTableData(
       id: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
+        DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
       serverId: attachedDatabase.typeMapping.read(
@@ -2450,7 +2448,7 @@ class $OrderTableTable extends OrderTable
         data['${effectivePrefix}server_id'],
       ),
       userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
+        DriftSqlType.string,
         data['${effectivePrefix}user_id'],
       )!,
       status: attachedDatabase.typeMapping.read(
@@ -2512,13 +2510,13 @@ class $OrderTableTable extends OrderTable
 
 class OrderTableData extends DataClass implements Insertable<OrderTableData> {
   /// Primary key - order ID
-  final int id;
+  final String id;
 
   /// Order's unique identifier from the server
   final String? serverId;
 
   /// User ID (foreign key to users table)
-  final int userId;
+  final String userId;
 
   /// Order status (e.g. pending, completed, cancelled)
   final String status;
@@ -2575,11 +2573,11 @@ class OrderTableData extends DataClass implements Insertable<OrderTableData> {
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
+    map['id'] = Variable<String>(id);
     if (!nullToAbsent || serverId != null) {
       map['server_id'] = Variable<String>(serverId);
     }
-    map['user_id'] = Variable<int>(userId);
+    map['user_id'] = Variable<String>(userId);
     map['status'] = Variable<String>(status);
     map['total_amount'] = Variable<double>(totalAmount);
     if (!nullToAbsent || discountAmount != null) {
@@ -2635,9 +2633,9 @@ class OrderTableData extends DataClass implements Insertable<OrderTableData> {
   }) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return OrderTableData(
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<String>(json['id']),
       serverId: serializer.fromJson<String?>(json['serverId']),
-      userId: serializer.fromJson<int>(json['userId']),
+      userId: serializer.fromJson<String>(json['userId']),
       status: serializer.fromJson<String>(json['status']),
       totalAmount: serializer.fromJson<double>(json['totalAmount']),
       discountAmount: serializer.fromJson<double?>(json['discountAmount']),
@@ -2656,9 +2654,9 @@ class OrderTableData extends DataClass implements Insertable<OrderTableData> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<String>(id),
       'serverId': serializer.toJson<String?>(serverId),
-      'userId': serializer.toJson<int>(userId),
+      'userId': serializer.toJson<String>(userId),
       'status': serializer.toJson<String>(status),
       'totalAmount': serializer.toJson<double>(totalAmount),
       'discountAmount': serializer.toJson<double?>(discountAmount),
@@ -2675,9 +2673,9 @@ class OrderTableData extends DataClass implements Insertable<OrderTableData> {
   }
 
   OrderTableData copyWith({
-    int? id,
+    String? id,
     Value<String?> serverId = const Value.absent(),
-    int? userId,
+    String? userId,
     String? status,
     double? totalAmount,
     Value<double?> discountAmount = const Value.absent(),
@@ -2809,9 +2807,9 @@ class OrderTableData extends DataClass implements Insertable<OrderTableData> {
 }
 
 class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
-  final Value<int> id;
+  final Value<String> id;
   final Value<String?> serverId;
-  final Value<int> userId;
+  final Value<String> userId;
   final Value<String> status;
   final Value<double> totalAmount;
   final Value<double?> discountAmount;
@@ -2824,6 +2822,7 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
   final Value<String?> notes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<int> rowid;
   const OrderTableCompanion({
     this.id = const Value.absent(),
     this.serverId = const Value.absent(),
@@ -2840,11 +2839,12 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   OrderTableCompanion.insert({
-    this.id = const Value.absent(),
+    required String id,
     this.serverId = const Value.absent(),
-    required int userId,
+    required String userId,
     required String status,
     required double totalAmount,
     this.discountAmount = const Value.absent(),
@@ -2857,7 +2857,9 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
     this.notes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
-  }) : userId = Value(userId),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       userId = Value(userId),
        status = Value(status),
        totalAmount = Value(totalAmount),
        shippingAddress = Value(shippingAddress),
@@ -2866,9 +2868,9 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
        paymentStatus = Value(paymentStatus),
        shippingMethod = Value(shippingMethod);
   static Insertable<OrderTableData> custom({
-    Expression<int>? id,
+    Expression<String>? id,
     Expression<String>? serverId,
-    Expression<int>? userId,
+    Expression<String>? userId,
     Expression<String>? status,
     Expression<double>? totalAmount,
     Expression<double>? discountAmount,
@@ -2881,6 +2883,7 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
     Expression<String>? notes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2898,13 +2901,14 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
       if (notes != null) 'notes': notes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   OrderTableCompanion copyWith({
-    Value<int>? id,
+    Value<String>? id,
     Value<String?>? serverId,
-    Value<int>? userId,
+    Value<String>? userId,
     Value<String>? status,
     Value<double>? totalAmount,
     Value<double?>? discountAmount,
@@ -2917,6 +2921,7 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
     Value<String?>? notes,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<int>? rowid,
   }) {
     return OrderTableCompanion(
       id: id ?? this.id,
@@ -2934,6 +2939,7 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
       notes: notes ?? this.notes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -2941,13 +2947,13 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     if (id.present) {
-      map['id'] = Variable<int>(id.value);
+      map['id'] = Variable<String>(id.value);
     }
     if (serverId.present) {
       map['server_id'] = Variable<String>(serverId.value);
     }
     if (userId.present) {
-      map['user_id'] = Variable<int>(userId.value);
+      map['user_id'] = Variable<String>(userId.value);
     }
     if (status.present) {
       map['status'] = Variable<String>(status.value);
@@ -2985,6 +2991,9 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -3005,7 +3014,8 @@ class OrderTableCompanion extends UpdateCompanion<OrderTableData> {
           ..write('trackingNumber: $trackingNumber, ')
           ..write('notes: $notes, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -3034,11 +3044,11 @@ class $OrderItemTableTable extends OrderItemTable
     'orderId',
   );
   @override
-  late final GeneratedColumn<int> orderId = GeneratedColumn<int>(
+  late final GeneratedColumn<String> orderId = GeneratedColumn<String>(
     'order_id',
     aliasedName,
     false,
-    type: DriftSqlType.int,
+    type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
   static const VerificationMeta _productIdMeta = const VerificationMeta(
@@ -3211,7 +3221,7 @@ class $OrderItemTableTable extends OrderItemTable
         data['${effectivePrefix}id'],
       )!,
       orderId: attachedDatabase.typeMapping.read(
-        DriftSqlType.int,
+        DriftSqlType.string,
         data['${effectivePrefix}order_id'],
       )!,
       productId: attachedDatabase.typeMapping.read(
@@ -3253,7 +3263,7 @@ class OrderItemTableData extends DataClass
   final int id;
 
   /// Order ID (foreign key to orders table)
-  final int orderId;
+  final String orderId;
 
   /// Product ID (foreign key to products table)
   final int productId;
@@ -3286,7 +3296,7 @@ class OrderItemTableData extends DataClass
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['order_id'] = Variable<int>(orderId);
+    map['order_id'] = Variable<String>(orderId);
     map['product_id'] = Variable<int>(productId);
     if (!nullToAbsent || productServerId != null) {
       map['product_server_id'] = Variable<String>(productServerId);
@@ -3324,7 +3334,7 @@ class OrderItemTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return OrderItemTableData(
       id: serializer.fromJson<int>(json['id']),
-      orderId: serializer.fromJson<int>(json['orderId']),
+      orderId: serializer.fromJson<String>(json['orderId']),
       productId: serializer.fromJson<int>(json['productId']),
       productServerId: serializer.fromJson<String?>(json['productServerId']),
       productName: serializer.fromJson<String>(json['productName']),
@@ -3338,7 +3348,7 @@ class OrderItemTableData extends DataClass
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'orderId': serializer.toJson<int>(orderId),
+      'orderId': serializer.toJson<String>(orderId),
       'productId': serializer.toJson<int>(productId),
       'productServerId': serializer.toJson<String?>(productServerId),
       'productName': serializer.toJson<String>(productName),
@@ -3350,7 +3360,7 @@ class OrderItemTableData extends DataClass
 
   OrderItemTableData copyWith({
     int? id,
-    int? orderId,
+    String? orderId,
     int? productId,
     Value<String?> productServerId = const Value.absent(),
     String? productName,
@@ -3434,7 +3444,7 @@ class OrderItemTableData extends DataClass
 
 class OrderItemTableCompanion extends UpdateCompanion<OrderItemTableData> {
   final Value<int> id;
-  final Value<int> orderId;
+  final Value<String> orderId;
   final Value<int> productId;
   final Value<String?> productServerId;
   final Value<String> productName;
@@ -3453,7 +3463,7 @@ class OrderItemTableCompanion extends UpdateCompanion<OrderItemTableData> {
   });
   OrderItemTableCompanion.insert({
     this.id = const Value.absent(),
-    required int orderId,
+    required String orderId,
     required int productId,
     this.productServerId = const Value.absent(),
     required String productName,
@@ -3467,7 +3477,7 @@ class OrderItemTableCompanion extends UpdateCompanion<OrderItemTableData> {
        quantity = Value(quantity);
   static Insertable<OrderItemTableData> custom({
     Expression<int>? id,
-    Expression<int>? orderId,
+    Expression<String>? orderId,
     Expression<int>? productId,
     Expression<String>? productServerId,
     Expression<String>? productName,
@@ -3489,7 +3499,7 @@ class OrderItemTableCompanion extends UpdateCompanion<OrderItemTableData> {
 
   OrderItemTableCompanion copyWith({
     Value<int>? id,
-    Value<int>? orderId,
+    Value<String>? orderId,
     Value<int>? productId,
     Value<String?>? productServerId,
     Value<String>? productName,
@@ -3516,7 +3526,7 @@ class OrderItemTableCompanion extends UpdateCompanion<OrderItemTableData> {
       map['id'] = Variable<int>(id.value);
     }
     if (orderId.present) {
-      map['order_id'] = Variable<int>(orderId.value);
+      map['order_id'] = Variable<String>(orderId.value);
     }
     if (productId.present) {
       map['product_id'] = Variable<int>(productId.value);
@@ -4547,9 +4557,9 @@ typedef $$CartTableTableProcessedTableManager =
     >;
 typedef $$OrderTableTableCreateCompanionBuilder =
     OrderTableCompanion Function({
-      Value<int> id,
+      required String id,
       Value<String?> serverId,
-      required int userId,
+      required String userId,
       required String status,
       required double totalAmount,
       Value<double?> discountAmount,
@@ -4562,12 +4572,13 @@ typedef $$OrderTableTableCreateCompanionBuilder =
       Value<String?> notes,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<int> rowid,
     });
 typedef $$OrderTableTableUpdateCompanionBuilder =
     OrderTableCompanion Function({
-      Value<int> id,
+      Value<String> id,
       Value<String?> serverId,
-      Value<int> userId,
+      Value<String> userId,
       Value<String> status,
       Value<double> totalAmount,
       Value<double?> discountAmount,
@@ -4580,6 +4591,7 @@ typedef $$OrderTableTableUpdateCompanionBuilder =
       Value<String?> notes,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
+      Value<int> rowid,
     });
 
 class $$OrderTableTableFilterComposer
@@ -4591,7 +4603,7 @@ class $$OrderTableTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(
+  ColumnFilters<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnFilters(column),
   );
@@ -4601,7 +4613,7 @@ class $$OrderTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get userId => $composableBuilder(
+  ColumnFilters<String> get userId => $composableBuilder(
     column: $table.userId,
     builder: (column) => ColumnFilters(column),
   );
@@ -4676,7 +4688,7 @@ class $$OrderTableTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(
+  ColumnOrderings<String> get id => $composableBuilder(
     column: $table.id,
     builder: (column) => ColumnOrderings(column),
   );
@@ -4686,7 +4698,7 @@ class $$OrderTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get userId => $composableBuilder(
+  ColumnOrderings<String> get userId => $composableBuilder(
     column: $table.userId,
     builder: (column) => ColumnOrderings(column),
   );
@@ -4761,13 +4773,13 @@ class $$OrderTableTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
+  GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
   GeneratedColumn<String> get serverId =>
       $composableBuilder(column: $table.serverId, builder: (column) => column);
 
-  GeneratedColumn<int> get userId =>
+  GeneratedColumn<String> get userId =>
       $composableBuilder(column: $table.userId, builder: (column) => column);
 
   GeneratedColumn<String> get status =>
@@ -4854,9 +4866,9 @@ class $$OrderTableTableTableManager
               $$OrderTableTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
+                Value<String> id = const Value.absent(),
                 Value<String?> serverId = const Value.absent(),
-                Value<int> userId = const Value.absent(),
+                Value<String> userId = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<double> totalAmount = const Value.absent(),
                 Value<double?> discountAmount = const Value.absent(),
@@ -4869,6 +4881,7 @@ class $$OrderTableTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
               }) => OrderTableCompanion(
                 id: id,
                 serverId: serverId,
@@ -4885,12 +4898,13 @@ class $$OrderTableTableTableManager
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                rowid: rowid,
               ),
           createCompanionCallback:
               ({
-                Value<int> id = const Value.absent(),
+                required String id,
                 Value<String?> serverId = const Value.absent(),
-                required int userId,
+                required String userId,
                 required String status,
                 required double totalAmount,
                 Value<double?> discountAmount = const Value.absent(),
@@ -4903,6 +4917,7 @@ class $$OrderTableTableTableManager
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
               }) => OrderTableCompanion.insert(
                 id: id,
                 serverId: serverId,
@@ -4919,6 +4934,7 @@ class $$OrderTableTableTableManager
                 notes: notes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -4948,7 +4964,7 @@ typedef $$OrderTableTableProcessedTableManager =
 typedef $$OrderItemTableTableCreateCompanionBuilder =
     OrderItemTableCompanion Function({
       Value<int> id,
-      required int orderId,
+      required String orderId,
       required int productId,
       Value<String?> productServerId,
       required String productName,
@@ -4959,7 +4975,7 @@ typedef $$OrderItemTableTableCreateCompanionBuilder =
 typedef $$OrderItemTableTableUpdateCompanionBuilder =
     OrderItemTableCompanion Function({
       Value<int> id,
-      Value<int> orderId,
+      Value<String> orderId,
       Value<int> productId,
       Value<String?> productServerId,
       Value<String> productName,
@@ -4982,7 +4998,7 @@ class $$OrderItemTableTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get orderId => $composableBuilder(
+  ColumnFilters<String> get orderId => $composableBuilder(
     column: $table.orderId,
     builder: (column) => ColumnFilters(column),
   );
@@ -5032,7 +5048,7 @@ class $$OrderItemTableTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get orderId => $composableBuilder(
+  ColumnOrderings<String> get orderId => $composableBuilder(
     column: $table.orderId,
     builder: (column) => ColumnOrderings(column),
   );
@@ -5080,7 +5096,7 @@ class $$OrderItemTableTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<int> get orderId =>
+  GeneratedColumn<String> get orderId =>
       $composableBuilder(column: $table.orderId, builder: (column) => column);
 
   GeneratedColumn<int> get productId =>
@@ -5148,7 +5164,7 @@ class $$OrderItemTableTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<int> orderId = const Value.absent(),
+                Value<String> orderId = const Value.absent(),
                 Value<int> productId = const Value.absent(),
                 Value<String?> productServerId = const Value.absent(),
                 Value<String> productName = const Value.absent(),
@@ -5168,7 +5184,7 @@ class $$OrderItemTableTableTableManager
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required int orderId,
+                required String orderId,
                 required int productId,
                 Value<String?> productServerId = const Value.absent(),
                 required String productName,

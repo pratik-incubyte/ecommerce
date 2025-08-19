@@ -58,7 +58,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
 
   Future<void> _onGetOrderDetails(
     String userId,
-    int orderId,
+    String orderId,
     Emitter<OrdersState> emit,
   ) async {
     final currentState = state;
@@ -85,7 +85,7 @@ class OrdersBloc extends Bloc<OrdersEvent, OrdersState> {
 
   Future<void> _onCancelOrder(
     String userId,
-    int orderId,
+    String orderId,
     Emitter<OrdersState> emit,
   ) async {
     final currentState = state;

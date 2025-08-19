@@ -6,13 +6,16 @@ class OrderTable extends Table {
   String get tableName => 'orders';
   
   /// Primary key - order ID
-  IntColumn get id => integer().autoIncrement()();
+  TextColumn get id => text()();
+  
+  @override
+  Set<Column> get primaryKey => {id};
   
   /// Order's unique identifier from the server
   TextColumn get serverId => text().unique().nullable()();
   
   /// User ID (foreign key to users table)
-  IntColumn get userId => integer()();
+  TextColumn get userId => text()();
   
   /// Order status (e.g. pending, completed, cancelled)
   TextColumn get status => text()();
@@ -60,7 +63,7 @@ class OrderItemTable extends Table {
   IntColumn get id => integer().autoIncrement()();
   
   /// Order ID (foreign key to orders table)
-  IntColumn get orderId => integer()();
+  TextColumn get orderId => text()();
   
   /// Product ID (foreign key to products table)
   IntColumn get productId => integer()();

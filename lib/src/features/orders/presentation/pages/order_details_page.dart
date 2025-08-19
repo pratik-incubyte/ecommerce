@@ -1,28 +1,122 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../bloc/orders_bloc.dart';
 import '../../domain/entities/order.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
-class OrderDetailsPage extends StatelessWidget {
+class OrderDetailsPage extends StatefulWidget {
   final String orderId;
   final String? userId;
 
   const OrderDetailsPage({super.key, required this.orderId, this.userId});
 
   @override
+  State<OrderDetailsPage> createState() => _OrderDetailsPageState();
+}
+
+class _OrderDetailsPageState extends State<OrderDetailsPage> {
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => getIt<OrdersBloc>()
-        ..add(
-          OrdersEvent.getOrderDetails(
-            userId: userId ?? '1', // Default user ID for demo
-            orderId: int.parse(orderId),
-          ),
-        ),
-      child: OrderDetailsView(orderId: orderId, userId: userId),
+      create: (_) => getIt<OrdersBloc>(),
+      child: BlocConsumer<AuthBloc, AuthState>(
+        listener: (context, authState) {
+          // When auth state changes and we have a user, load order details
+          authState.whenOrNull(
+            authenticated: (user) {
+              context.read<OrdersBloc>().add(
+                OrdersEvent.getOrderDetails(
+                  userId: user.id,
+                  orderId: widget.orderId,
+                ),
+              );
+            },
+          );
+        },
+        builder: (context, authState) {
+          return authState.when(
+            initial: () {
+              // Trigger auth check if not already done
+              context.read<AuthBloc>().add(const AuthEvent.checkAuthStatus());
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            },
+            loading: () => const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            ),
+            authenticated: (user) {
+              // User is authenticated, show the order details
+              return OrderDetailsView(
+                orderId: widget.orderId, 
+                userId: widget.userId ?? user.id,
+              );
+            },
+            unauthenticated: () {
+              // User not authenticated, handle accordingly
+              return Scaffold(
+                appBar: AppBar(title: const Text('Unauthorized')),
+                body: const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.lock, size: 64),
+                      SizedBox(height: 16),
+                      Text(
+                        'You need to be logged in to view order details',
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            error: (message) {
+              return Scaffold(
+                appBar: AppBar(title: const Text('Error')),
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error, size: 64),
+                      SizedBox(height: 16),
+                      Text('Authentication error: $message'),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
+  }
+  
+  /// Get authenticated user ID with fallback
+  String _getUserId(BuildContext context) {
+    // First try to use the passed userId
+    if (widget.userId != null && widget.userId!.isNotEmpty && widget.userId != '1') {
+      return widget.userId!;
+    }
+    
+    // Then try to get from AuthBloc if available
+    try {
+      final authBloc = getIt<AuthBloc>();
+      final authState = authBloc.state;
+      final authenticatedUserId = authState.whenOrNull(
+        authenticated: (user) => user.id,
+      );
+      if (authenticatedUserId != null) {
+        return authenticatedUserId;
+      }
+    } catch (e) {
+      // AuthBloc might not be available in this context
+    }
+    
+    return widget.userId ?? '1'; // Final fallback for demo
   }
 }
 
@@ -37,14 +131,19 @@ class OrderDetailsView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Order #$orderId'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => _handleBackNavigation(context),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
+              final actualUserId = _getUserId(context);
               context.read<OrdersBloc>().add(
                 OrdersEvent.getOrderDetails(
-                  userId: userId ?? '1',
-                  orderId: int.parse(orderId),
+                  userId: actualUserId,
+                  orderId: orderId,
                 ),
               );
             },
@@ -79,14 +178,14 @@ class OrderDetailsView extends StatelessWidget {
             loaded: (orders, hasReachedMax, currentPage) {
               // Find the specific order from the loaded orders
               final order = orders.firstWhere(
-                (o) => o.id.toString() == orderId,
+                (o) => o.id == orderId,
                 orElse: () => throw Exception('Order not found'),
               );
               return _buildOrderDetails(context, order);
             },
             loadingMore: (orders, currentPage) {
               final order = orders.firstWhere(
-                (o) => o.id.toString() == orderId,
+                (o) => o.id == orderId,
                 orElse: () => throw Exception('Order not found'),
               );
               return _buildOrderDetails(context, order);
@@ -95,7 +194,7 @@ class OrderDetailsView extends StatelessWidget {
                 _buildOrderDetails(context, order),
             orderCancelled: (orderId, orders) {
               final order = orders.firstWhere(
-                (o) => o.id.toString() == this.orderId,
+                (o) => o.id == this.orderId,
                 orElse: () => throw Exception('Order not found'),
               );
               return _buildOrderDetails(context, order);
@@ -104,7 +203,7 @@ class OrderDetailsView extends StatelessWidget {
                 ? _buildOrderDetails(
                     context,
                     orders.firstWhere(
-                      (o) => o.id.toString() == orderId,
+                      (o) => o.id == orderId,
                       orElse: () => throw Exception('Order not found'),
                     ),
                   )
@@ -118,10 +217,11 @@ class OrderDetailsView extends StatelessWidget {
   Widget _buildOrderDetails(BuildContext context, Order order) {
     return RefreshIndicator(
       onRefresh: () async {
+        final actualUserId = _getUserId(context);
         context.read<OrdersBloc>().add(
           OrdersEvent.getOrderDetails(
-            userId: userId ?? '1',
-            orderId: int.parse(orderId),
+            userId: actualUserId,
+            orderId: orderId,
           ),
         );
       },
@@ -580,10 +680,11 @@ class OrderDetailsView extends StatelessWidget {
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
+                final actualUserId = _getUserId(context);
                 context.read<OrdersBloc>().add(
                   OrdersEvent.getOrderDetails(
-                    userId: userId ?? '1',
-                    orderId: int.parse(orderId),
+                    userId: actualUserId,
+                    orderId: orderId,
                   ),
                 );
               },
@@ -609,9 +710,10 @@ class OrderDetailsView extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
+              final actualUserId = _getUserId(context);
               context.read<OrdersBloc>().add(
                 OrdersEvent.cancelOrder(
-                  userId: userId ?? '1',
+                  userId: actualUserId,
                   orderId: order.id!,
                 ),
               );
@@ -628,5 +730,32 @@ class OrderDetailsView extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
+  }
+
+  /// Get authenticated user ID with fallback
+  String _getUserId(BuildContext context) {
+    // First try to use the passed userId
+    if (userId != null && userId!.isNotEmpty && userId != '1') {
+      return userId!;
+    }
+    
+    // Then try to get from AuthBloc
+    final authState = context.read<AuthBloc>().state;
+    return authState.whenOrNull(
+      authenticated: (user) => user.id,
+    ) ?? userId ?? '1'; // Final fallback for demo
+  }
+
+  /// Handle back navigation with smart routing
+  void _handleBackNavigation(BuildContext context) {
+    // Check if we can go back in the navigation stack
+    if (Navigator.of(context).canPop()) {
+      // If there's a previous route in the stack, go back normally
+      Navigator.of(context).pop();
+    } else {
+      // If this was opened via deep link or there's no back stack,
+      // navigate to the orders page
+      context.goNamed('orders');
+    }
   }
 }

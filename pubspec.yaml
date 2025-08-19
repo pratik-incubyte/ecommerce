@@ -39,6 +39,7 @@ dependencies:
   
   # Navigation
   go_router: ^16.1.0
+  app_links: ^6.3.2
   
   # Functional Programming
   dartz: ^0.10.1

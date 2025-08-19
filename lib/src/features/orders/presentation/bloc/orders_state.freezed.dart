@@ -134,7 +134,7 @@ return error(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<order_entity.Order> orders,  bool hasReachedMax,  int currentPage)?  loaded,TResult Function( List<order_entity.Order> orders,  int currentPage)?  loadingMore,TResult Function( order_entity.Order order,  List<order_entity.Order>? orders)?  orderDetailsLoaded,TResult Function( int orderId,  List<order_entity.Order> orders)?  orderCancelled,TResult Function( String message,  List<order_entity.Order>? orders)?  error,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function()?  initial,TResult Function()?  loading,TResult Function( List<order_entity.Order> orders,  bool hasReachedMax,  int currentPage)?  loaded,TResult Function( List<order_entity.Order> orders,  int currentPage)?  loadingMore,TResult Function( order_entity.Order order,  List<order_entity.Order>? orders)?  orderDetailsLoaded,TResult Function( String orderId,  List<order_entity.Order> orders)?  orderCancelled,TResult Function( String message,  List<order_entity.Order>? orders)?  error,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
@@ -161,7 +161,7 @@ return error(_that.message,_that.orders);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<order_entity.Order> orders,  bool hasReachedMax,  int currentPage)  loaded,required TResult Function( List<order_entity.Order> orders,  int currentPage)  loadingMore,required TResult Function( order_entity.Order order,  List<order_entity.Order>? orders)  orderDetailsLoaded,required TResult Function( int orderId,  List<order_entity.Order> orders)  orderCancelled,required TResult Function( String message,  List<order_entity.Order>? orders)  error,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function()  initial,required TResult Function()  loading,required TResult Function( List<order_entity.Order> orders,  bool hasReachedMax,  int currentPage)  loaded,required TResult Function( List<order_entity.Order> orders,  int currentPage)  loadingMore,required TResult Function( order_entity.Order order,  List<order_entity.Order>? orders)  orderDetailsLoaded,required TResult Function( String orderId,  List<order_entity.Order> orders)  orderCancelled,required TResult Function( String message,  List<order_entity.Order>? orders)  error,}) {final _that = this;
 switch (_that) {
 case _Initial():
 return initial();case _Loading():
@@ -184,7 +184,7 @@ return error(_that.message,_that.orders);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<order_entity.Order> orders,  bool hasReachedMax,  int currentPage)?  loaded,TResult? Function( List<order_entity.Order> orders,  int currentPage)?  loadingMore,TResult? Function( order_entity.Order order,  List<order_entity.Order>? orders)?  orderDetailsLoaded,TResult? Function( int orderId,  List<order_entity.Order> orders)?  orderCancelled,TResult? Function( String message,  List<order_entity.Order>? orders)?  error,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function()?  initial,TResult? Function()?  loading,TResult? Function( List<order_entity.Order> orders,  bool hasReachedMax,  int currentPage)?  loaded,TResult? Function( List<order_entity.Order> orders,  int currentPage)?  loadingMore,TResult? Function( order_entity.Order order,  List<order_entity.Order>? orders)?  orderDetailsLoaded,TResult? Function( String orderId,  List<order_entity.Order> orders)?  orderCancelled,TResult? Function( String message,  List<order_entity.Order>? orders)?  error,}) {final _that = this;
 switch (_that) {
 case _Initial() when initial != null:
 return initial();case _Loading() when loading != null:
@@ -498,7 +498,7 @@ class _OrderCancelled implements OrdersState {
   const _OrderCancelled({required this.orderId, required final  List<order_entity.Order> orders}): _orders = orders;
   
 
- final  int orderId;
+ final  String orderId;
  final  List<order_entity.Order> _orders;
  List<order_entity.Order> get orders {
   if (_orders is EqualUnmodifiableListView) return _orders;
@@ -537,7 +537,7 @@ abstract mixin class _$OrderCancelledCopyWith<$Res> implements $OrdersStateCopyW
   factory _$OrderCancelledCopyWith(_OrderCancelled value, $Res Function(_OrderCancelled) _then) = __$OrderCancelledCopyWithImpl;
 @useResult
 $Res call({
- int orderId, List<order_entity.Order> orders
+ String orderId, List<order_entity.Order> orders
 });
 
 
@@ -557,7 +557,7 @@ class __$OrderCancelledCopyWithImpl<$Res>
 @pragma('vm:prefer-inline') $Res call({Object? orderId = null,Object? orders = null,}) {
   return _then(_OrderCancelled(
 orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
-as int,orders: null == orders ? _self._orders : orders // ignore: cast_nullable_to_non_nullable
+as String,orders: null == orders ? _self._orders : orders // ignore: cast_nullable_to_non_nullable
 as List<order_entity.Order>,
   ));
 }

@@ -18,9 +18,7 @@ class OrderItemModel extends OrderItem {
   factory OrderItemModel.fromJson(Map<String, dynamic> json) {
     return OrderItemModel(
       id: json['id'] is String ? int.tryParse(json['id']) : json['id'],
-      orderId: json['orderId'] is String
-          ? int.tryParse(json['orderId']) ?? 0
-          : json['orderId'] ?? 0,
+      orderId: json['orderId']?.toString() ?? '0',
       product: ProductModel.fromJson(json['product'] ?? {}),
       quantity: json['quantity'] is String
           ? int.tryParse(json['quantity']) ?? 1
@@ -37,7 +35,7 @@ class OrderItemModel extends OrderItem {
   ) {
     return OrderItemModel(
       id: row['id'],
-      orderId: row['orderId'] ?? 0,
+      orderId: row['orderId']?.toString() ?? '0',
       product: product,
       quantity: row['quantity'] ?? 1,
       productPrice: (row['productPrice'] ?? 0.0).toDouble(),
@@ -103,7 +101,7 @@ class OrderItemModel extends OrderItem {
   @override
   OrderItemModel copyWith({
     int? id,
-    int? orderId,
+    String? orderId,
     Product? product,
     int? quantity,
     double? productPrice,

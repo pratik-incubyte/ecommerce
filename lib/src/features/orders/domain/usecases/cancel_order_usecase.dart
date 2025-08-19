@@ -21,7 +21,7 @@ class CancelOrderUseCase implements UseCase<Unit, CancelOrderParams> {
 /// Parameters for cancelling an order
 class CancelOrderParams extends Params {
   final String userId;
-  final int orderId;
+  final String orderId;
 
   const CancelOrderParams({required this.userId, required this.orderId});
 

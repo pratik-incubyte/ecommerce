@@ -22,7 +22,7 @@ class GetOrderDetailsUseCase implements UseCase<Order, GetOrderDetailsParams> {
 /// Parameters for getting order details
 class GetOrderDetailsParams extends Params {
   final String userId;
-  final int orderId;
+  final String orderId;
 
   const GetOrderDetailsParams({required this.userId, required this.orderId});
 

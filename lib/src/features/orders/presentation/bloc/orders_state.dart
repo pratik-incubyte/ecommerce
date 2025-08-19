@@ -34,7 +34,7 @@ sealed class OrdersState with _$OrdersState {
 
   /// Order cancelled successfully
   const factory OrdersState.orderCancelled({
-    required int orderId,
+    required String orderId,
     required List<order_entity.Order> orders,
   }) = _OrderCancelled;
 

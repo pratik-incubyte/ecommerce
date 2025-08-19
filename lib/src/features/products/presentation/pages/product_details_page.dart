@@ -351,37 +351,79 @@ class ProductDetailsView extends StatelessWidget {
               flex: 2,
               child: BlocBuilder<AuthBloc, AuthState>(
                 builder: (context, authState) {
-                  final userId = authState.maybeWhen(
-                    authenticated: (user) => user.id,
-                    orElse: () => 'user123', // Fallback for development
-                  );
-
-                  return ElevatedButton.icon(
-                    onPressed: isAddingToCart
-                        ? null
-                        : () {
-                            context.read<CartBloc>().add(
-                              CartEvent.addToCart(
-                                userId: userId,
-                                product: product,
-                                quantity: 1,
+                  return authState.when(
+                    initial: () => ElevatedButton.icon(
+                      onPressed: null,
+                      icon: const CircularProgressIndicator(),
+                      label: const Text('Loading...'),
+                    ),
+                    loading: () => ElevatedButton.icon(
+                      onPressed: null,
+                      icon: const CircularProgressIndicator(),
+                      label: const Text('Loading...'),
+                    ),
+                    authenticated: (user) => ElevatedButton.icon(
+                      onPressed: isAddingToCart
+                          ? null
+                          : () {
+                              context.read<CartBloc>().add(
+                                CartEvent.addToCart(
+                                  userId: user.id,
+                                  product: product,
+                                  quantity: 1,
+                                ),
+                              );
+                            },
+                      icon: isAddingToCart
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
                               ),
-                            );
-                          },
-                    icon: isAddingToCart
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Icon(Icons.add_shopping_cart),
-                    label: Text(isAddingToCart ? 'Adding...' : 'Add to Cart'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppConstants.defaultPadding,
+                            )
+                          : const Icon(Icons.add_shopping_cart),
+                      label: Text(isAddingToCart ? 'Adding...' : 'Add to Cart'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppConstants.defaultPadding,
+                        ),
+                      ),
+                    ),
+                    unauthenticated: () => ElevatedButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Please log in to add items to cart'),
+                            backgroundColor: Colors.orange,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.login),
+                      label: const Text('Login to Add'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppConstants.defaultPadding,
+                        ),
+                      ),
+                    ),
+                    error: (message) => ElevatedButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Auth error: $message'),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.error),
+                      label: const Text('Auth Error'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(
+                          vertical: AppConstants.defaultPadding,
+                        ),
                       ),
                     ),
                   );

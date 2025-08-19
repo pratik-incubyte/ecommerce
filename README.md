@@ -239,6 +239,121 @@ result.fold(
 - **Loading States**: Proper loading indicators
 - **Navigation**: Deep linking support
 
+## 🔗 Deep Linking Testing
+
+This app supports deep linking for product details and order details pages. You can test deep links using ADB (Android Debug Bridge) or the iOS Simulator.
+
+### 🤖 Android Testing with ADB
+
+#### Prerequisites
+- Enable USB debugging on your Android device
+- Install ADB (comes with Android SDK)
+- Connect your device or start an emulator
+
+#### Product Details Deep Link Testing
+```bash
+# Test product details page with product ID
+adb shell am start \
+  -W -a android.intent.action.VIEW \
+  -d "ecommerce://product/123" \
+  com.example.ecommerce
+
+# Test with HTTPS scheme (requires domain setup)
+adb shell am start \
+  -W -a android.intent.action.VIEW \
+  -d "https://ecommerce.example.com/product/123" \
+  com.example.ecommerce
+
+# Test with different product IDs
+adb shell am start \
+  -W -a android.intent.action.VIEW \
+  -d "ecommerce://product/456" \
+  com.example.ecommerce
+```
+
+#### Order Details Deep Link Testing
+```bash
+# Test order details page with order ID
+adb shell am start \
+  -W -a android.intent.action.VIEW \
+  -d "ecommerce://orders/789" \
+  com.example.ecommerce
+
+# Test with user ID parameter
+adb shell am start \
+  -W -a android.intent.action.VIEW \
+  -d "ecommerce://orders/789?userId=user123" \
+  com.example.ecommerce
+
+# Test with HTTPS scheme
+adb shell am start \
+  -W -a android.intent.action.VIEW \
+  -d "https://ecommerce.example.com/orders/789" \
+  com.example.ecommerce
+```
+
+#### Error Handling Testing
+```bash
+# Test with invalid product ID (should show error gracefully)
+adb shell am start \
+  -W -a android.intent.action.VIEW \
+  -d "ecommerce://product/999999" \
+  com.example.ecommerce
+
+# Test with invalid order ID (should show error gracefully)
+adb shell am start \
+  -W -a android.intent.action.VIEW \
+  -d "ecommerce://orders/999999" \
+  com.example.ecommerce
+```
+
+### 🍎 iOS Testing with Simulator
+
+```bash
+# Test product details deep link
+xcrun simctl openurl booted "ecommerce://product/123"
+
+# Test order details deep link
+xcrun simctl openurl booted "ecommerce://orders/789"
+
+# Test with query parameters
+xcrun simctl openurl booted "ecommerce://orders/789?userId=user123"
+```
+
+### 🌐 Web Testing
+
+For web testing, simply navigate to these URLs in your browser:
+- Product Details: `http://localhost:3000/product/123`
+- Order Details: `http://localhost:3000/orders/789`
+
+### 📱 Manual Testing Methods
+
+1. **Notes App**: Create a note with the deep link and tap it
+2. **Messages**: Send yourself a message with the deep link
+3. **Email**: Send yourself an email with the deep link
+4. **QR Code**: Generate a QR code with the deep link and scan it
+5. **Browser**: Type the deep link in any browser's address bar
+
+### 🔍 What to Verify
+
+When testing deep links, ensure:
+- ✅ App opens to the correct page
+- ✅ Correct product/order information loads
+- ✅ Back navigation works properly
+- ✅ App handles invalid IDs gracefully
+- ✅ Authentication flow works correctly
+- ✅ Bottom navigation shows correct selected tab
+- ✅ Loading states are displayed properly
+- ✅ Error states are handled gracefully
+
+### 🛠️ Production Setup
+
+For production apps, remember to:
+1. Replace `ecommerce.example.com` with your actual domain
+2. Set up domain verification for Android App Links
+3. Configure Apple App Site Association file for iOS Universal Links
+4. Test on physical devices with different scenarios
+
 ## 🧪 Testing
 
 ```bash

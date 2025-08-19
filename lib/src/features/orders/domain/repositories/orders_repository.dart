@@ -28,19 +28,19 @@ abstract class OrdersRepository {
   /// Get a specific order by ID
   Future<Either<Failure, Order>> getOrderById({
     required String userId,
-    required int orderId,
+    required String orderId,
   });
 
   /// Update order status
   Future<Either<Failure, Order>> updateOrderStatus({
-    required int orderId,
+    required String orderId,
     required String status,
   });
 
   /// Cancel an order
   Future<Either<Failure, Unit>> cancelOrder({
     required String userId,
-    required int orderId,
+    required String orderId,
   });
 
   /// Get order history for a user

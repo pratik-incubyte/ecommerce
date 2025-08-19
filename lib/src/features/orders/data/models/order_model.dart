@@ -27,7 +27,7 @@ class OrderModel extends Order {
   /// Convert from JSON map
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     return OrderModel(
-      id: json['id'] is String ? int.tryParse(json['id']) : json['id'],
+      id: json['id']?.toString(),
       serverId: json['serverId']?.toString(),
       userId: json['userId']?.toString() ?? '',
       items:
@@ -116,7 +116,7 @@ class OrderModel extends Order {
     return {
       'id': id,
       'serverId': serverId,
-      'userId': int.tryParse(userId) ?? 0,
+      'userId': userId,
       'status': status,
       'totalAmount': totalAmount,
       'discountAmount': discountAmount,
@@ -179,7 +179,7 @@ class OrderModel extends Order {
   /// Copy with method for creating modified instances
   @override
   OrderModel copyWith({
-    int? id,
+    String? id,
     String? serverId,
     String? userId,
     List<OrderItem>? items,

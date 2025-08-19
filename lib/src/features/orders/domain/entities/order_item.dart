@@ -4,7 +4,7 @@ import 'package:ecommerce/src/features/products/domain/entities/product.dart';
 /// Order item entity representing an individual item in an order
 class OrderItem extends Equatable {
   final int? id;
-  final int orderId;
+  final String orderId;
   final Product product;
   final int quantity;
   final double productPrice;
@@ -25,7 +25,7 @@ class OrderItem extends Equatable {
   /// Copy with method for creating modified instances
   OrderItem copyWith({
     int? id,
-    int? orderId,
+    String? orderId,
     Product? product,
     int? quantity,
     double? productPrice,

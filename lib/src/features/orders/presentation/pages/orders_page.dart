@@ -21,15 +21,56 @@ class _OrdersPageState extends State<OrdersPage> {
   Widget build(BuildContext context) {
     return BlocBuilder<AuthBloc, AuthState>(
       builder: (context, authState) {
-        final userId = authState.maybeWhen(
-          authenticated: (user) => user.id,
-          orElse: () => widget.userId ?? 'user123', // Fallback for development
-        );
-
-        return BlocProvider(
-          create: (context) =>
-              getIt<OrdersBloc>()..add(OrdersEvent.getOrders(userId: userId)),
-          child: _OrdersView(userId: userId),
+        return authState.when(
+          initial: () => const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          ),
+          loading: () => const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          ),
+          authenticated: (user) => BlocProvider(
+            create: (context) => getIt<OrdersBloc>()
+              ..add(OrdersEvent.getOrders(userId: user.id)),
+            child: _OrdersView(userId: user.id),
+          ),
+          unauthenticated: () => const Scaffold(
+            appBar: null,
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.login, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text(
+                    'Please log in to view your orders',
+                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          error: (message) => Scaffold(
+            appBar: AppBar(title: Text('Error')),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  SizedBox(height: 16),
+                  Text(
+                    'Authentication Error',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ),
         );
       },
     );

@@ -28,6 +28,49 @@ class AppRouter {
     navigatorKey: _rootNavigatorKey,
     initialLocation: '/',
     routes: [
+      // Deep link routes (outside of shell to avoid auth redirect issues)
+      GoRoute(
+        path: '/orders/:orderId',
+        name: 'order-details-deeplink',
+        builder: (context, state) {
+          final orderId = state.pathParameters['orderId']!;
+          final userId = state.uri.queryParameters['userId'];
+          
+          // Try to get the authenticated user ID from the existing AuthBloc
+          String? authenticatedUserId;
+          try {
+            final authBloc = getIt<AuthBloc>();
+            authenticatedUserId = authBloc.state.whenOrNull(
+              authenticated: (user) => user.id,
+            );
+          } catch (e) {
+            // AuthBloc might not be available
+          }
+          
+          return BlocProvider(
+            create: (_) => getIt<AuthBloc>(),
+            child: AuthWrapper(
+              child: OrderDetailsPage(
+                orderId: orderId, 
+                userId: userId ?? authenticatedUserId,
+              ),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: '/products/:productId',
+        name: 'product-details-deeplink',
+        builder: (context, state) {
+          final productId = state.pathParameters['productId']!;
+          return BlocProvider(
+            create: (_) => getIt<AuthBloc>(),
+            child: AuthWrapper(
+              child: ProductDetailsPage(productId: productId),
+            ),
+          );
+        },
+      ),
       // Auth route
       GoRoute(
         path: '/auth',
@@ -107,6 +150,8 @@ class AppRouter {
     redirect: (context, state) {
       final authBloc = getIt<AuthBloc>();
       final isAuthRoute = state.uri.path == '/auth';
+      final isDeepLink = state.uri.path.startsWith('/orders/') || 
+                        state.uri.path.startsWith('/products/');
 
       return authBloc.state.when(
         initial: () {
@@ -124,14 +169,14 @@ class AppRouter {
         },
         unauthenticated: () {
           // User is not authenticated
-          if (!isAuthRoute) {
-            return '/auth'; // Redirect to auth page
+          if (!isAuthRoute && !isDeepLink) {
+            return '/auth'; // Redirect to auth page, but allow deep links
           }
-          return null; // Allow access to auth page
+          return null; // Allow access to auth page and deep links
         },
         error: (message) {
-          // On error, redirect to auth page
-          if (!isAuthRoute) {
+          // On error, redirect to auth page unless it's a deep link
+          if (!isAuthRoute && !isDeepLink) {
             return '/auth';
           }
           return null;

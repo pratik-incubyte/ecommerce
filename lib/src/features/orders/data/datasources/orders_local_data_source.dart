@@ -18,13 +18,13 @@ abstract class OrdersLocalDataSource {
   });
 
   /// Get a specific order by ID
-  Future<OrderModel> getOrderById(String userId, int orderId);
+  Future<OrderModel> getOrderById(String userId, String orderId);
 
-  /// Update order status
-  Future<OrderModel> updateOrderStatus(int orderId, String status);
+  /// Update order status locally
+  Future<OrderModel> updateOrderStatus(String orderId, String status);
 
-  /// Delete order from local database
-  Future<void> deleteOrder(int orderId);
+  /// Delete an order from local storage
+  Future<void> deleteOrder(String orderId);
 
   /// Clear all orders for a user
   Future<void> clearOrders(String userId);
@@ -40,40 +40,46 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
   Future<OrderModel> cacheOrder(OrderModel order) async {
     try {
       final orderData = order.toDatabaseRow();
+      
+      // Use the Firebase document ID as the order ID
+      final orderIdString = order.id ?? order.serverId ?? DateTime.now().millisecondsSinceEpoch.toString();
 
       // Insert or update order
-      final orderId = await database
-          .into(database.orderTable)
-          .insertReturning(
-            OrderTableCompanion.insert(
-              serverId: Value(orderData['serverId']),
-              userId: orderData['userId'],
-              status: orderData['status'],
-              totalAmount: orderData['totalAmount'],
-              discountAmount: Value(orderData['discountAmount']),
-              shippingAddress: orderData['shippingAddress'],
-              billingAddress: orderData['billingAddress'],
-              paymentMethod: orderData['paymentMethod'],
-              paymentStatus: orderData['paymentStatus'],
-              shippingMethod: orderData['shippingMethod'],
-              trackingNumber: Value(orderData['trackingNumber']),
-              notes: Value(orderData['notes']),
-              createdAt: Value(DateTime.parse(orderData['createdAt'])),
-              updatedAt: Value(DateTime.parse(orderData['updatedAt'])),
-            ),
-          );
+      await database.into(database.orderTable).insertOnConflictUpdate(
+        OrderTableCompanion.insert(
+          id: orderIdString,
+          serverId: Value(orderData['serverId']),
+          userId: orderData['userId'],
+          status: orderData['status'],
+          totalAmount: orderData['totalAmount'],
+          discountAmount: Value(orderData['discountAmount']),
+          shippingAddress: orderData['shippingAddress'],
+          billingAddress: orderData['billingAddress'],
+          paymentMethod: orderData['paymentMethod'],
+          paymentStatus: orderData['paymentStatus'],
+          shippingMethod: orderData['shippingMethod'],
+          trackingNumber: Value(orderData['trackingNumber']),
+          notes: Value(orderData['notes']),
+          createdAt: Value(DateTime.parse(orderData['createdAt'])),
+          updatedAt: Value(DateTime.parse(orderData['updatedAt'])),
+        ),
+      );
+
+      // Delete existing order items
+      await database.delete(database.orderItemTable)
+        ..where((item) => item.orderId.equals(orderIdString))
+        ..go();
 
       // Insert order items
       for (final item in order.items) {
         final itemModel = item as OrderItemModel;
         final itemData = itemModel.toDatabaseRow();
-        itemData['orderId'] = orderId.id;
 
         await database
             .into(database.orderItemTable)
             .insert(
               OrderItemTableCompanion.insert(
-                orderId: orderId.id,
+                orderId: orderIdString,
                 productId: itemData['productId'],
                 productServerId: Value(itemData['productServerId']),
                 productName: itemData['productName'],
@@ -84,7 +90,7 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
             );
       }
 
-      return order.copyWith(id: orderId.id);
+      return order.copyWith(id: orderIdString);
     } catch (e) {
       throw CacheException('Failed to cache order: ${e.toString()}');
     }
@@ -98,10 +104,9 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
   }) async {
     try {
       final offset = (page - 1) * limit;
-      final userIdInt = int.tryParse(userId) ?? 0;
 
       final ordersQuery = database.select(database.orderTable)
-        ..where((order) => order.userId.equals(userIdInt))
+        ..where((order) => order.userId.equals(userId))
         ..orderBy([(order) => OrderingTerm.desc(order.createdAt)])
         ..limit(limit, offset: offset);
 
@@ -142,7 +147,7 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
         final order = OrderModel.fromDatabaseRow({
           'id': orderRow.id,
           'serverId': orderRow.serverId,
-          'userId': orderRow.userId.toString(),
+          'userId': orderRow.userId,
           'status': orderRow.status,
           'totalAmount': orderRow.totalAmount,
           'discountAmount': orderRow.discountAmount,
@@ -166,13 +171,11 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
   }
 
   @override
-  Future<OrderModel> getOrderById(String userId, int orderId) async {
+  Future<OrderModel> getOrderById(String userId, String orderId) async {
     try {
-      final userIdInt = int.tryParse(userId) ?? 0;
-
       final orderQuery = database.select(database.orderTable)
         ..where(
-          (order) => order.id.equals(orderId) & order.userId.equals(userIdInt),
+          (order) => order.id.equals(orderId) & order.userId.equals(userId),
         );
 
       final orderRow = await orderQuery.getSingleOrNull();
@@ -211,7 +214,7 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
       return OrderModel.fromDatabaseRow({
         'id': orderRow.id,
         'serverId': orderRow.serverId,
-        'userId': orderRow.userId.toString(),
+        'userId': orderRow.userId,
         'status': orderRow.status,
         'totalAmount': orderRow.totalAmount,
         'discountAmount': orderRow.discountAmount,
@@ -231,7 +234,7 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
   }
 
   @override
-  Future<OrderModel> updateOrderStatus(int orderId, String status) async {
+  Future<OrderModel> updateOrderStatus(String orderId, String status) async {
     try {
       final updateQuery = database.update(database.orderTable)
         ..where((order) => order.id.equals(orderId));
@@ -252,7 +255,7 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
       return OrderModel.fromDatabaseRow({
         'id': orderRow.id,
         'serverId': orderRow.serverId,
-        'userId': orderRow.userId.toString(),
+        'userId': orderRow.userId,
         'status': orderRow.status,
         'totalAmount': orderRow.totalAmount,
         'discountAmount': orderRow.discountAmount,
@@ -272,7 +275,7 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
   }
 
   @override
-  Future<void> deleteOrder(int orderId) async {
+  Future<void> deleteOrder(String orderId) async {
     try {
       // Delete order items first
       final deleteItemsQuery = database.delete(database.orderItemTable)
@@ -293,11 +296,9 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
   @override
   Future<void> clearOrders(String userId) async {
     try {
-      final userIdInt = int.tryParse(userId) ?? 0;
-
       // Get all order IDs for the user
       final ordersQuery = database.select(database.orderTable)
-        ..where((order) => order.userId.equals(userIdInt));
+        ..where((order) => order.userId.equals(userId));
 
       final orderRows = await ordersQuery.get();
 
@@ -311,7 +312,7 @@ class OrdersLocalDataSourceImpl implements OrdersLocalDataSource {
 
       // Delete all orders for the user
       final deleteOrdersQuery = database.delete(database.orderTable)
-        ..where((order) => order.userId.equals(userIdInt));
+        ..where((order) => order.userId.equals(userId));
 
       await deleteOrdersQuery.go();
     } catch (e) {

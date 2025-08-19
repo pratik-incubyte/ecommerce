@@ -15,13 +15,13 @@ abstract class OrdersRemoteDataSource {
   });
 
   /// Get a specific order by ID
-  Future<OrderModel> getOrderById(String userId, int orderId);
+  Future<OrderModel> getOrderById(String userId, String orderId);
 
   /// Update order status on the server
-  Future<OrderModel> updateOrderStatus(int orderId, String status);
+  Future<OrderModel> updateOrderStatus(String orderId, String status);
 
   /// Cancel order on the server
-  Future<void> cancelOrder(String userId, int orderId);
+  Future<void> cancelOrder(String userId, String orderId);
 }
 
 /// Implementation of remote data source for orders using Firebase Firestore
@@ -35,6 +35,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
     try {
       final orderData = order.toJson();
       orderData.remove('id'); // Remove local ID
+      orderData.remove('serverId'); // Remove serverId
 
       // Add server timestamp
       orderData['createdAt'] = FieldValue.serverTimestamp();
@@ -45,11 +46,6 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
       // Get the created order with server ID
       final createdDoc = await docRef.get();
       final createdData = createdDoc.data()!;
-
-      // Generate a proper integer ID from the timestamp for local use
-      final now = DateTime.now();
-      final generatedId =
-          now.millisecondsSinceEpoch % 2147483647; // Keep within int range
 
       // Convert Firestore timestamps to DateTime
       if (createdData['createdAt'] is Timestamp) {
@@ -63,10 +59,10 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
             .toIso8601String();
       }
 
-      // Set both integer ID and serverId
+      // Use Firebase document ID as the order ID
       return OrderModel.fromJson(
         createdData,
-      ).copyWith(id: generatedId, serverId: createdDoc.id);
+      ).copyWith(id: createdDoc.id, serverId: createdDoc.id);
     } catch (e) {
       throw ServerException('Failed to create order: ${e.toString()}');
     }
@@ -82,8 +78,8 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
       Query query = firestore
           .collection('orders')
           .where('userId', isEqualTo: userId)
-          .orderBy('createdAt', descending: true)
           .limit(limit);
+          // TODO: Add .orderBy('createdAt', descending: true) after creating Firebase index
 
       // Note: Firestore doesn't have offset, so for now we just use limit
       // For proper pagination, we'd need to implement cursor-based pagination
@@ -92,22 +88,10 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
 
       final orders = querySnapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
-
-        // Generate integer ID from the document timestamp or use existing ID
-        int? orderId;
+        
+        // Convert createdAt timestamp
         if (data['createdAt'] is Timestamp) {
-          final timestamp = data['createdAt'] as Timestamp;
-          orderId = timestamp.millisecondsSinceEpoch % 2147483647;
-          data['createdAt'] = timestamp.toDate().toIso8601String();
-        } else if (data['createdAt'] is String) {
-          try {
-            final dateTime = DateTime.parse(data['createdAt']);
-            orderId = dateTime.millisecondsSinceEpoch % 2147483647;
-          } catch (_) {
-            orderId = DateTime.now().millisecondsSinceEpoch % 2147483647;
-          }
-        } else {
-          orderId = DateTime.now().millisecondsSinceEpoch % 2147483647;
+          data['createdAt'] = (data['createdAt'] as Timestamp).toDate().toIso8601String();
         }
 
         // Convert updatedAt timestamp
@@ -117,9 +101,10 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
               .toIso8601String();
         }
 
+        // Use Firebase document ID directly as the order ID
         return OrderModel.fromJson(
           data,
-        ).copyWith(id: orderId, serverId: doc.id);
+        ).copyWith(id: doc.id, serverId: doc.id);
       }).toList();
 
       return orders;
@@ -129,61 +114,26 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }
 
   @override
-  Future<OrderModel> getOrderById(String userId, int orderId) async {
+  Future<OrderModel> getOrderById(String userId, String orderId) async {
     try {
-      // First try to find by document ID (serverId)
-      DocumentSnapshot? doc;
+      // Get order by document ID directly
+      final doc = await firestore
+          .collection('orders')
+          .doc(orderId)
+          .get();
 
-      try {
-        doc = await firestore
-            .collection('orders')
-            .doc(orderId.toString())
-            .get();
-        if (!doc.exists) {
-          doc = null;
-        }
-      } catch (_) {
-        doc = null;
-      }
-
-      // If not found by document ID, search by order data
-      if (doc == null) {
-        final querySnapshot = await firestore
-            .collection('orders')
-            .where('userId', isEqualTo: userId)
-            .where('id', isEqualTo: orderId)
-            .limit(1)
-            .get();
-
-        if (querySnapshot.docs.isNotEmpty) {
-          doc = querySnapshot.docs.first;
-        }
-      }
-
-      if (doc == null || !doc.exists) {
+      if (!doc.exists) {
         throw ServerException('Order not found');
       }
 
       final data = doc.data() as Map<String, dynamic>;
 
-      // Generate integer ID from the document timestamp
-      int? generatedOrderId;
+      // Convert timestamps
       if (data['createdAt'] is Timestamp) {
-        final timestamp = data['createdAt'] as Timestamp;
-        generatedOrderId = timestamp.millisecondsSinceEpoch % 2147483647;
-        data['createdAt'] = timestamp.toDate().toIso8601String();
-      } else if (data['createdAt'] is String) {
-        try {
-          final dateTime = DateTime.parse(data['createdAt']);
-          generatedOrderId = dateTime.millisecondsSinceEpoch % 2147483647;
-        } catch (_) {
-          generatedOrderId = DateTime.now().millisecondsSinceEpoch % 2147483647;
-        }
-      } else {
-        generatedOrderId = DateTime.now().millisecondsSinceEpoch % 2147483647;
+        data['createdAt'] = (data['createdAt'] as Timestamp)
+            .toDate()
+            .toIso8601String();
       }
-
-      // Convert updatedAt timestamp
       if (data['updatedAt'] is Timestamp) {
         data['updatedAt'] = (data['updatedAt'] as Timestamp)
             .toDate()
@@ -195,9 +145,10 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
         throw ServerException('Unauthorized access to order');
       }
 
+      // Use Firebase document ID directly as the order ID
       return OrderModel.fromJson(
         data,
-      ).copyWith(id: generatedOrderId, serverId: doc.id);
+      ).copyWith(id: doc.id, serverId: doc.id);
     } catch (e) {
       if (e is ServerException) rethrow;
       throw ServerException('Failed to get order: ${e.toString()}');
@@ -205,37 +156,15 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }
 
   @override
-  Future<OrderModel> updateOrderStatus(int orderId, String status) async {
+  Future<OrderModel> updateOrderStatus(String orderId, String status) async {
     try {
-      // Try to find the order document
-      DocumentSnapshot? doc;
+      // Get the order document directly
+      final doc = await firestore
+          .collection('orders')
+          .doc(orderId)
+          .get();
 
-      try {
-        doc = await firestore
-            .collection('orders')
-            .doc(orderId.toString())
-            .get();
-        if (!doc.exists) {
-          doc = null;
-        }
-      } catch (_) {
-        doc = null;
-      }
-
-      if (doc == null) {
-        // Search by order ID in the data
-        final querySnapshot = await firestore
-            .collection('orders')
-            .where('id', isEqualTo: orderId)
-            .limit(1)
-            .get();
-
-        if (querySnapshot.docs.isNotEmpty) {
-          doc = querySnapshot.docs.first;
-        }
-      }
-
-      if (doc == null || !doc.exists) {
+      if (!doc.exists) {
         throw ServerException('Order not found');
       }
 
@@ -249,33 +178,22 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
       final updatedDoc = await doc.reference.get();
       final data = updatedDoc.data() as Map<String, dynamic>;
 
-      // Generate integer ID from the document timestamp
-      int? generatedOrderId;
+      // Convert timestamps
       if (data['createdAt'] is Timestamp) {
-        final timestamp = data['createdAt'] as Timestamp;
-        generatedOrderId = timestamp.millisecondsSinceEpoch % 2147483647;
-        data['createdAt'] = timestamp.toDate().toIso8601String();
-      } else if (data['createdAt'] is String) {
-        try {
-          final dateTime = DateTime.parse(data['createdAt']);
-          generatedOrderId = dateTime.millisecondsSinceEpoch % 2147483647;
-        } catch (_) {
-          generatedOrderId = DateTime.now().millisecondsSinceEpoch % 2147483647;
-        }
-      } else {
-        generatedOrderId = DateTime.now().millisecondsSinceEpoch % 2147483647;
+        data['createdAt'] = (data['createdAt'] as Timestamp)
+            .toDate()
+            .toIso8601String();
       }
-
-      // Convert updatedAt timestamp
       if (data['updatedAt'] is Timestamp) {
         data['updatedAt'] = (data['updatedAt'] as Timestamp)
             .toDate()
             .toIso8601String();
       }
 
+      // Use Firebase document ID directly as the order ID
       return OrderModel.fromJson(
         data,
-      ).copyWith(id: generatedOrderId, serverId: updatedDoc.id);
+      ).copyWith(id: updatedDoc.id, serverId: updatedDoc.id);
     } catch (e) {
       if (e is ServerException) rethrow;
       throw ServerException('Failed to update order status: ${e.toString()}');
@@ -283,7 +201,7 @@ class OrdersRemoteDataSourceImpl implements OrdersRemoteDataSource {
   }
 
   @override
-  Future<void> cancelOrder(String userId, int orderId) async {
+  Future<void> cancelOrder(String userId, String orderId) async {
     try {
       await updateOrderStatus(orderId, 'cancelled');
     } catch (e) {

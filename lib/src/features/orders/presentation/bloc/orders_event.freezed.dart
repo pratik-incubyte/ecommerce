@@ -159,7 +159,7 @@ return loadMoreOrders(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String userId,  int page,  int limit)?  getOrders,TResult Function( String userId,  int orderId)?  getOrderDetails,TResult Function( String userId,  int orderId)?  cancelOrder,TResult Function( String userId)?  refreshOrders,TResult Function( String userId,  int page)?  loadMoreOrders,required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>({TResult Function( String userId,  int page,  int limit)?  getOrders,TResult Function( String userId,  String orderId)?  getOrderDetails,TResult Function( String userId,  String orderId)?  cancelOrder,TResult Function( String userId)?  refreshOrders,TResult Function( String userId,  int page)?  loadMoreOrders,required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _GetOrders() when getOrders != null:
 return getOrders(_that.userId,_that.page,_that.limit);case _GetOrderDetails() when getOrderDetails != null:
@@ -184,7 +184,7 @@ return loadMoreOrders(_that.userId,_that.page);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String userId,  int page,  int limit)  getOrders,required TResult Function( String userId,  int orderId)  getOrderDetails,required TResult Function( String userId,  int orderId)  cancelOrder,required TResult Function( String userId)  refreshOrders,required TResult Function( String userId,  int page)  loadMoreOrders,}) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>({required TResult Function( String userId,  int page,  int limit)  getOrders,required TResult Function( String userId,  String orderId)  getOrderDetails,required TResult Function( String userId,  String orderId)  cancelOrder,required TResult Function( String userId)  refreshOrders,required TResult Function( String userId,  int page)  loadMoreOrders,}) {final _that = this;
 switch (_that) {
 case _GetOrders():
 return getOrders(_that.userId,_that.page,_that.limit);case _GetOrderDetails():
@@ -205,7 +205,7 @@ return loadMoreOrders(_that.userId,_that.page);}
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String userId,  int page,  int limit)?  getOrders,TResult? Function( String userId,  int orderId)?  getOrderDetails,TResult? Function( String userId,  int orderId)?  cancelOrder,TResult? Function( String userId)?  refreshOrders,TResult? Function( String userId,  int page)?  loadMoreOrders,}) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>({TResult? Function( String userId,  int page,  int limit)?  getOrders,TResult? Function( String userId,  String orderId)?  getOrderDetails,TResult? Function( String userId,  String orderId)?  cancelOrder,TResult? Function( String userId)?  refreshOrders,TResult? Function( String userId,  int page)?  loadMoreOrders,}) {final _that = this;
 switch (_that) {
 case _GetOrders() when getOrders != null:
 return getOrders(_that.userId,_that.page,_that.limit);case _GetOrderDetails() when getOrderDetails != null:
@@ -298,7 +298,7 @@ class _GetOrderDetails implements OrdersEvent {
   
 
 @override final  String userId;
- final  int orderId;
+ final  String orderId;
 
 /// Create a copy of OrdersEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -330,7 +330,7 @@ abstract mixin class _$GetOrderDetailsCopyWith<$Res> implements $OrdersEventCopy
   factory _$GetOrderDetailsCopyWith(_GetOrderDetails value, $Res Function(_GetOrderDetails) _then) = __$GetOrderDetailsCopyWithImpl;
 @override @useResult
 $Res call({
- String userId, int orderId
+ String userId, String orderId
 });
 
 
@@ -351,7 +351,7 @@ class __$GetOrderDetailsCopyWithImpl<$Res>
   return _then(_GetOrderDetails(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
-as int,
+as String,
   ));
 }
 
@@ -366,7 +366,7 @@ class _CancelOrder implements OrdersEvent {
   
 
 @override final  String userId;
- final  int orderId;
+ final  String orderId;
 
 /// Create a copy of OrdersEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -398,7 +398,7 @@ abstract mixin class _$CancelOrderCopyWith<$Res> implements $OrdersEventCopyWith
   factory _$CancelOrderCopyWith(_CancelOrder value, $Res Function(_CancelOrder) _then) = __$CancelOrderCopyWithImpl;
 @override @useResult
 $Res call({
- String userId, int orderId
+ String userId, String orderId
 });
 
 
@@ -419,7 +419,7 @@ class __$CancelOrderCopyWithImpl<$Res>
   return _then(_CancelOrder(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as String,orderId: null == orderId ? _self.orderId : orderId // ignore: cast_nullable_to_non_nullable
-as int,
+as String,
   ));
 }
 

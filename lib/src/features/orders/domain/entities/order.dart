@@ -3,7 +3,7 @@ import 'order_item.dart';
 
 /// Order entity representing a customer's order
 class Order extends Equatable {
-  final int? id;
+  final String? id;
   final String? serverId;
   final String userId;
   final List<OrderItem> items;
@@ -62,7 +62,7 @@ class Order extends Equatable {
 
   /// Copy with method for creating modified instances
   Order copyWith({
-    int? id,
+    String? id,
     String? serverId,
     String? userId,
     List<OrderItem>? items,
