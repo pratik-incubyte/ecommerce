@@ -16,22 +16,20 @@ import 'injection_container.dart';
 Future<void> initCartDependencies() async {
   // External dependencies (Firebase)
   if (!getIt.isRegistered<FirebaseFirestore>()) {
-    getIt.registerLazySingleton<FirebaseFirestore>(() => FirebaseFirestore.instance);
+    getIt.registerLazySingleton<FirebaseFirestore>(
+      () => FirebaseFirestore.instance,
+    );
   }
-  
+
   // Data sources
   getIt.registerLazySingleton<CartLocalDataSource>(
-    () => CartLocalDataSourceImpl(
-      database: getIt(),
-    ),
+    () => CartLocalDataSourceImpl(database: getIt()),
   );
-  
+
   getIt.registerLazySingleton<CartRemoteDataSource>(
-    () => CartRemoteDataSourceImpl(
-      firestore: getIt(),
-    ),
+    () => CartRemoteDataSourceImpl(firestore: getIt()),
   );
-  
+
   // Repository
   getIt.registerLazySingleton<CartRepository>(
     () => CartRepositoryImpl(
@@ -40,7 +38,7 @@ Future<void> initCartDependencies() async {
       networkInfo: getIt(),
     ),
   );
-  
+
   // Use cases
   getIt.registerLazySingleton(() => GetCartItemsUseCase(getIt()));
   getIt.registerLazySingleton(() => AddToCartUseCase(getIt()));
@@ -48,7 +46,7 @@ Future<void> initCartDependencies() async {
   getIt.registerLazySingleton(() => RemoveFromCartUseCase(getIt()));
   getIt.registerLazySingleton(() => ClearCartUseCase(getIt()));
   getIt.registerLazySingleton(() => GetCartItemCountUseCase(getIt()));
-  
+
   // Bloc
   getIt.registerFactory(
     () => CartBloc(

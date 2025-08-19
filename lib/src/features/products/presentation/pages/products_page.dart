@@ -94,7 +94,7 @@ class ProductsView extends StatelessWidget {
                                 crossAxisCount: 2,
                                 crossAxisSpacing: AppConstants.defaultPadding,
                                 mainAxisSpacing: AppConstants.defaultPadding,
-                                childAspectRatio: 0.7,
+                                childAspectRatio: 0.63,
                               ),
                           itemCount: products.length,
                           itemBuilder: (context, index) {

@@ -29,7 +29,7 @@ abstract class CartLocalDataSource {
 
 class CartLocalDataSourceImpl implements CartLocalDataSource {
   final AppDatabase database;
-  
+
   CartLocalDataSourceImpl({required this.database});
 
   @override
@@ -38,11 +38,13 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
       final query = database.select(database.cartTable)
         ..where((t) => t.userId.equals(int.tryParse(userId) ?? 0))
         ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]);
-      
+
       final rows = await query.get();
       return rows.map(CartItemModel.fromDrift).toList();
     } catch (e) {
-      throw CacheException('Failed to get cart items from cache: ${e.toString()}');
+      throw CacheException(
+        'Failed to get cart items from cache: ${e.toString()}',
+      );
     }
   }
 
@@ -50,16 +52,20 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
   Future<CartItemModel?> getCartItem(String userId, int productId) async {
     try {
       final query = database.select(database.cartTable)
-        ..where((t) => 
-            t.userId.equals(int.tryParse(userId) ?? 0) & 
-            t.productId.equals(productId));
-      
+        ..where(
+          (t) =>
+              t.userId.equals(int.tryParse(userId) ?? 0) &
+              t.productId.equals(productId),
+        );
+
       final row = await query.getSingleOrNull();
       if (row == null) return null;
-      
+
       return CartItemModel.fromDrift(row);
     } catch (e) {
-      throw CacheException('Failed to get cart item from cache: ${e.toString()}');
+      throw CacheException(
+        'Failed to get cart item from cache: ${e.toString()}',
+      );
     }
   }
 
@@ -98,12 +104,17 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
   Future<void> updateCartItem(CartItem cartItem) async {
     try {
       final updatedCartItem = cartItem.copyWith(updatedAt: DateTime.now());
-      
-      await (database.update(database.cartTable)
-            ..where((t) => 
-                t.userId.equals(int.tryParse(cartItem.userId) ?? 0) & 
-                t.productId.equals(cartItem.product.id)))
-          .write(CartItemModel.fromEntity(updatedCartItem).toDriftCompanion());
+
+      await (database.update(database.cartTable)..where(
+            (t) =>
+                t.userId.equals(int.tryParse(cartItem.userId) ?? 0) &
+                t.productId.equals(cartItem.product.id),
+          ))
+          .write(
+            CartItemModel.fromEntity(
+              updatedCartItem,
+            ).toDriftCompanionForUpdate(),
+          );
     } catch (e) {
       throw CacheException('Failed to update cart item: ${e.toString()}');
     }
@@ -112,10 +123,11 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
   @override
   Future<void> removeCartItem(String userId, int productId) async {
     try {
-      await (database.delete(database.cartTable)
-            ..where((t) => 
-                t.userId.equals(int.tryParse(userId) ?? 0) & 
-                t.productId.equals(productId)))
+      await (database.delete(database.cartTable)..where(
+            (t) =>
+                t.userId.equals(int.tryParse(userId) ?? 0) &
+                t.productId.equals(productId),
+          ))
           .go();
     } catch (e) {
       throw CacheException('Failed to remove cart item: ${e.toString()}');
@@ -125,9 +137,9 @@ class CartLocalDataSourceImpl implements CartLocalDataSource {
   @override
   Future<void> clearCart(String userId) async {
     try {
-      await (database.delete(database.cartTable)
-            ..where((t) => t.userId.equals(int.tryParse(userId) ?? 0)))
-          .go();
+      await (database.delete(
+        database.cartTable,
+      )..where((t) => t.userId.equals(int.tryParse(userId) ?? 0))).go();
     } catch (e) {
       throw CacheException('Failed to clear cart: ${e.toString()}');
     }

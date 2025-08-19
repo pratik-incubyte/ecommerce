@@ -7,7 +7,7 @@ import 'package:ecommerce/src/features/cart/domain/repositories/cart_repository.
 
 class GetCartItemsUseCase implements UseCase<Cart, GetCartItemsParams> {
   final CartRepository repository;
-  
+
   GetCartItemsUseCase(this.repository);
 
   @override

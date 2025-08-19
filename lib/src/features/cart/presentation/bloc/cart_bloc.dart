@@ -42,10 +42,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     });
   }
 
-  Future<void> _onLoadCart(
-    String userId,
-    Emitter<CartState> emit,
-  ) async {
+  Future<void> _onLoadCart(String userId, Emitter<CartState> emit) async {
     emit(const CartState.loading());
 
     final result = await getCartItemsUseCase(
@@ -83,13 +80,12 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         final cartResult = await getCartItemsUseCase(
           GetCartItemsParams(userId: userId),
         );
-        
+
         cartResult.fold(
           (failure) => emit(CartState.error(message: failure.message)),
-          (updatedCart) => emit(CartState.addedToCart(
-            cartItem: cartItem,
-            updatedCart: updatedCart,
-          )),
+          (updatedCart) => emit(
+            CartState.addedToCart(cartItem: cartItem, updatedCart: updatedCart),
+          ),
         );
       },
     );
@@ -118,10 +114,11 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         final cartResult = await getCartItemsUseCase(
           GetCartItemsParams(userId: userId),
         );
-        
+
         cartResult.fold(
           (failure) => emit(CartState.error(message: failure.message)),
-          (updatedCart) => emit(CartState.updatedCart(updatedCart: updatedCart)),
+          (updatedCart) =>
+              emit(CartState.updatedCart(updatedCart: updatedCart)),
         );
       },
     );
@@ -135,10 +132,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     emit(const CartState.removingFromCart());
 
     final result = await removeFromCartUseCase(
-      RemoveFromCartParams(
-        userId: userId,
-        productId: productId,
-      ),
+      RemoveFromCartParams(userId: userId, productId: productId),
     );
 
     await result.fold(
@@ -148,28 +142,42 @@ class CartBloc extends Bloc<CartEvent, CartState> {
         final cartResult = await getCartItemsUseCase(
           GetCartItemsParams(userId: userId),
         );
-        
+
         cartResult.fold(
           (failure) => emit(CartState.error(message: failure.message)),
-          (updatedCart) => emit(CartState.removedFromCart(updatedCart: updatedCart)),
+          (updatedCart) =>
+              emit(CartState.removedFromCart(updatedCart: updatedCart)),
         );
       },
     );
   }
 
-  Future<void> _onClearCart(
-    String userId,
-    Emitter<CartState> emit,
-  ) async {
+  Future<void> _onClearCart(String userId, Emitter<CartState> emit) async {
     emit(const CartState.clearingCart());
 
-    final result = await clearCartUseCase(
-      ClearCartParams(userId: userId),
-    );
+    final result = await clearCartUseCase(ClearCartParams(userId: userId));
 
-    result.fold(
-      (failure) => emit(CartState.error(message: failure.message)),
-      (_) => emit(const CartState.clearedCart()),
+    await result.fold(
+      (failure) async => emit(CartState.error(message: failure.message)),
+      (_) async {
+        // Show cleared message momentarily
+        emit(const CartState.clearedCart());
+
+        // Then reload the cart to show the empty state
+        final cartResult = await getCartItemsUseCase(
+          GetCartItemsParams(userId: userId),
+        );
+
+        cartResult.fold(
+          (failure) => emit(CartState.error(message: failure.message)),
+          (updatedCart) => emit(
+            CartState.loaded(
+              cart: updatedCart,
+              itemCount: updatedCart.totalItems,
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -183,14 +191,17 @@ class CartBloc extends Bloc<CartEvent, CartState> {
 
     final currentState = state;
     result.fold(
-      (failure) => emit(CartState.error(
-        message: failure.message,
-        cart: currentState.whenOrNull(loaded: (cart, _) => cart),
-      )),
+      (failure) => emit(
+        CartState.error(
+          message: failure.message,
+          cart: currentState.whenOrNull(loaded: (cart, _) => cart),
+        ),
+      ),
       (count) {
-        if (currentState is _Loaded) {
-          emit(currentState.copyWith(itemCount: count));
-        }
+        currentState.whenOrNull(
+          loaded: (cart, _) =>
+              emit(CartState.loaded(cart: cart, itemCount: count)),
+        );
       },
     );
   }

@@ -6,7 +6,7 @@ import 'package:ecommerce/src/features/cart/domain/repositories/cart_repository.
 
 class ClearCartUseCase implements UseCase<void, ClearCartParams> {
   final CartRepository repository;
-  
+
   ClearCartUseCase(this.repository);
 
   @override

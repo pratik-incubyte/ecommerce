@@ -19,8 +19,18 @@ class CartItemModel extends CartItem {
 
   /// Creates a [CartItemModel] from a JSON map (for Firebase)
   factory CartItemModel.fromJson(Map<String, dynamic> json) {
+    // Handle id conversion from String (Firestore doc ID) to int
+    int? id;
+    if (json['id'] != null) {
+      if (json['id'] is int) {
+        id = json['id'] as int;
+      } else if (json['id'] is String) {
+        id = int.tryParse(json['id'] as String);
+      }
+    }
+
     return CartItemModel(
-      id: json['id'] as int?,
+      id: id,
       userId: json['userId'] as String,
       product: ProductModel.fromJson(json['product'] as Map<String, dynamic>),
       quantity: json['quantity'] as int,
@@ -109,16 +119,20 @@ class CartItemModel extends CartItem {
   /// Converts this [CartItemModel] to a Drift [CartTableCompanion]
   CartTableCompanion toDriftCompanion() {
     return CartTableCompanion(
-      id: id != null ? Value(id!) : Value.absent(),
+      id: id != null ? Value(id!) : const Value.absent(),
       userId: Value(int.tryParse(userId) ?? 0),
       productId: Value(product.id),
       productServerId: Value(product.sku),
       productName: Value(product.title),
       productPrice: Value(product.price),
-      productDiscountPrice: Value.absent(), // Not implemented yet
-      productThumbnail: Value(product.images.isNotEmpty ? product.images.first : null),
+      productDiscountPrice: const Value.absent(), // Not implemented yet
+      productThumbnail: Value(
+        product.images.isNotEmpty ? product.images.first : null,
+      ),
       quantity: Value(quantity),
-      selectedVariants: Value(selectedVariants != null ? jsonEncode(selectedVariants) : null),
+      selectedVariants: Value(
+        selectedVariants != null ? jsonEncode(selectedVariants) : null,
+      ),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -131,11 +145,38 @@ class CartItemModel extends CartItem {
       productId: product.id,
       productName: product.title,
       productPrice: product.price,
-      quantity: quantity,
+      quantity: Value(quantity),
       productServerId: Value(product.sku),
-      productDiscountPrice: Value.absent(),
-      productThumbnail: Value(product.images.isNotEmpty ? product.images.first : null),
-      selectedVariants: Value(selectedVariants != null ? jsonEncode(selectedVariants) : null),
+      productDiscountPrice: const Value.absent(),
+      productThumbnail: Value(
+        product.images.isNotEmpty ? product.images.first : null,
+      ),
+      selectedVariants: Value(
+        selectedVariants != null ? jsonEncode(selectedVariants) : null,
+      ),
+    );
+  }
+
+  /// Converts this [CartItemModel] to a Drift [CartTableCompanion] for updates
+  /// Excludes the id field to avoid unique constraint violations
+  CartTableCompanion toDriftCompanionForUpdate() {
+    return CartTableCompanion(
+      // id is excluded for updates to avoid unique constraint violations
+      userId: Value(int.tryParse(userId) ?? 0),
+      productId: Value(product.id),
+      productServerId: Value(product.sku),
+      productName: Value(product.title),
+      productPrice: Value(product.price),
+      productDiscountPrice: const Value.absent(),
+      productThumbnail: Value(
+        product.images.isNotEmpty ? product.images.first : null,
+      ),
+      quantity: Value(quantity),
+      selectedVariants: Value(
+        selectedVariants != null ? jsonEncode(selectedVariants) : null,
+      ),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
     );
   }
 

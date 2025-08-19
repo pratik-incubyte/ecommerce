@@ -30,10 +30,10 @@ class CartRepositoryImpl implements CartRepository {
   }) async {
     try {
       final now = DateTime.now();
-      
+
       // Check if item already exists in cart
       CartItemModel? existingItem;
-      
+
       if (await networkInfo.isConnected) {
         existingItem = await remoteDataSource.getCartItem(userId, product.id);
       } else {
@@ -65,7 +65,7 @@ class CartRepositoryImpl implements CartRepository {
         final result = existingItem != null
             ? await remoteDataSource.updateCartItem(cartItemToSave)
             : await remoteDataSource.addToCart(cartItemToSave);
-        
+
         // Cache locally
         await localDataSource.cacheCartItem(result);
         return Right(result);
@@ -83,7 +83,9 @@ class CartRepositoryImpl implements CartRepository {
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
     } catch (e) {
-      return Left(GeneralFailure('Failed to add item to cart: ${e.toString()}'));
+      return Left(
+        GeneralFailure('Failed to add item to cart: ${e.toString()}'),
+      );
     }
   }
 
@@ -110,8 +112,8 @@ class CartRepositoryImpl implements CartRepository {
       final cart = Cart(
         userId: userId,
         items: cartItems,
-        updatedAt: cartItems.isNotEmpty 
-            ? cartItems.first.updatedAt 
+        updatedAt: cartItems.isNotEmpty
+            ? cartItems.first.updatedAt
             : DateTime.now(),
       );
 
@@ -162,7 +164,9 @@ class CartRepositoryImpl implements CartRepository {
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
     } catch (e) {
-      return Left(GeneralFailure('Failed to update cart item: ${e.toString()}'));
+      return Left(
+        GeneralFailure('Failed to update cart item: ${e.toString()}'),
+      );
     }
   }
 
@@ -182,7 +186,9 @@ class CartRepositoryImpl implements CartRepository {
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
     } catch (e) {
-      return Left(GeneralFailure('Failed to remove item from cart: ${e.toString()}'));
+      return Left(
+        GeneralFailure('Failed to remove item from cart: ${e.toString()}'),
+      );
     }
   }
 
@@ -212,7 +218,9 @@ class CartRepositoryImpl implements CartRepository {
         (cart) => Right(cart.totalItems),
       );
     } catch (e) {
-      return Left(GeneralFailure('Failed to get cart item count: ${e.toString()}'));
+      return Left(
+        GeneralFailure('Failed to get cart item count: ${e.toString()}'),
+      );
     }
   }
 }

@@ -5,21 +5,36 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../bloc/cart_bloc.dart';
 import '../widgets/cart_item_widget.dart';
+import '../../../checkout/presentation/pages/checkout_page.dart';
+import '../../../checkout/presentation/bloc/checkout_bloc.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class CartPage extends StatelessWidget {
   const CartPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => getIt<CartBloc>()..add(const CartEvent.loadCart(userId: 'user123')), // TODO: Get real user ID
-      child: const CartView(),
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, authState) {
+        final userId = authState.maybeWhen(
+          authenticated: (user) => user.id,
+          orElse: () => 'user123', // Fallback for development
+        );
+
+        return BlocProvider(
+          create: (_) =>
+              getIt<CartBloc>()..add(CartEvent.loadCart(userId: userId)),
+          child: CartView(userId: userId),
+        );
+      },
     );
   }
 }
 
 class CartView extends StatelessWidget {
-  const CartView({super.key});
+  final String userId;
+
+  const CartView({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -79,17 +94,15 @@ class CartView extends StatelessWidget {
             clearedCart: () {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  content: Text('Cart cleared'),
-                  backgroundColor: Colors.red,
+                  content: Text('Cart cleared successfully'),
+                  backgroundColor: Colors.green,
+                  duration: Duration(seconds: 2),
                 ),
               );
             },
             error: (message, cart) {
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                  backgroundColor: Colors.red,
-                ),
+                SnackBar(content: Text(message), backgroundColor: Colors.red),
               );
             },
             orElse: () {},
@@ -97,12 +110,8 @@ class CartView extends StatelessWidget {
         },
         builder: (context, state) {
           return state.when(
-            initial: () => const Center(
-              child: Text('Initializing cart...'),
-            ),
-            loading: () => const Center(
-              child: CircularProgressIndicator(),
-            ),
+            initial: () => const Center(child: Text('Initializing cart...')),
+            loading: () => const Center(child: CircularProgressIndicator()),
             loaded: (cart, itemCount) => _buildCartContent(context, cart),
             addingToCart: () => const Center(
               child: Column(
@@ -179,20 +188,20 @@ class CartView extends StatelessWidget {
                 cartItem: cartItem,
                 onQuantityChanged: (quantity) {
                   context.read<CartBloc>().add(
-                        CartEvent.updateQuantity(
-                          userId: cart.userId,
-                          productId: cartItem.product.id,
-                          quantity: quantity,
-                        ),
-                      );
+                    CartEvent.updateQuantity(
+                      userId: cart.userId,
+                      productId: cartItem.product.id,
+                      quantity: quantity,
+                    ),
+                  );
                 },
                 onRemove: () {
                   context.read<CartBloc>().add(
-                        CartEvent.removeFromCart(
-                          userId: cart.userId,
-                          productId: cartItem.product.id,
-                        ),
-                      );
+                    CartEvent.removeFromCart(
+                      userId: cart.userId,
+                      productId: cartItem.product.id,
+                    ),
+                  );
                 },
               );
             },
@@ -227,10 +236,7 @@ class CartView extends StatelessWidget {
             const SizedBox(height: AppConstants.smallPadding),
             const Text(
               'Add some products to get started!',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppConstants.largePadding),
@@ -260,11 +266,7 @@ class CartView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 80,
-              color: Colors.red,
-            ),
+            const Icon(Icons.error_outline, size: 80, color: Colors.red),
             const SizedBox(height: AppConstants.defaultPadding),
             Text(
               'Error loading cart',
@@ -277,18 +279,15 @@ class CartView extends StatelessWidget {
             const SizedBox(height: AppConstants.smallPadding),
             Text(
               message,
-              style: const TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppConstants.largePadding),
             ElevatedButton.icon(
               onPressed: () {
                 context.read<CartBloc>().add(
-                      const CartEvent.loadCart(userId: 'user123'), // TODO: Get real user ID
-                    );
+                  CartEvent.loadCart(userId: userId),
+                );
               },
               icon: const Icon(Icons.refresh),
               label: const Text('Retry'),
@@ -341,10 +340,12 @@ class CartView extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: cart.isNotEmpty
                     ? () {
-                        // TODO: Navigate to checkout
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Checkout feature coming soon!'),
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => BlocProvider(
+                              create: (context) => getIt<CheckoutBloc>(),
+                              child: CheckoutPage(userId: userId),
+                            ),
                           ),
                         );
                       }
@@ -382,9 +383,7 @@ class CartView extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
-              context.read<CartBloc>().add(
-                    const CartEvent.clearCart(userId: 'user123'), // TODO: Get real user ID
-                  );
+              context.read<CartBloc>().add(CartEvent.clearCart(userId: userId));
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('Clear'),

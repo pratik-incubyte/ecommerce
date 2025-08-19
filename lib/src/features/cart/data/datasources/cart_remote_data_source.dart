@@ -32,7 +32,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     try {
       final cartItemData = cartItem.toJson();
       cartItemData['id'] = '${cartItem.userId}_${cartItem.product.id}';
-      
+
       await firestore
           .collection('carts')
           .doc(cartItem.userId)
@@ -57,10 +57,12 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
           .get();
 
       return querySnapshot.docs
-          .map((doc) => CartItemModel.fromJson({
-                ...doc.data(),
-                'id': doc.id,
-              }))
+          .map(
+            (doc) => CartItemModel.fromJson({
+              ...doc.data(),
+              'id': int.tryParse(doc.id), // Convert doc.id to int
+            }),
+          )
           .toList();
     } catch (e) {
       throw ServerException('Failed to get cart items: ${e.toString()}');
@@ -70,9 +72,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   @override
   Future<CartItemModel> updateCartItem(CartItemModel cartItem) async {
     try {
-      final updatedCartItem = cartItem.copyWith(
-        updatedAt: DateTime.now(),
-      );
+      final updatedCartItem = cartItem.copyWith(updatedAt: DateTime.now());
 
       await firestore
           .collection('carts')
@@ -135,7 +135,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
 
       return CartItemModel.fromJson({
         ...doc.data()!,
-        'id': doc.id,
+        'id': int.tryParse(doc.id), // Convert doc.id to int
       });
     } catch (e) {
       throw ServerException('Failed to get cart item: ${e.toString()}');

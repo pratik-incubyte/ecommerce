@@ -6,7 +6,7 @@ import 'package:ecommerce/src/features/cart/domain/repositories/cart_repository.
 
 class GetCartItemCountUseCase implements UseCase<int, GetCartItemCountParams> {
   final CartRepository repository;
-  
+
   GetCartItemCountUseCase(this.repository);
 
   @override

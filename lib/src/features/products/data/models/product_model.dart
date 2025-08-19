@@ -19,7 +19,9 @@ class ProductModel extends Product {
   /// Creates a [ProductModel] from a JSON map
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
-      id: json['id'] as int,
+      id: json['id'] is String
+          ? int.tryParse(json['id']) ?? 0
+          : json['id'] as int,
       title: json['title'] as String,
       description: json['description'] as String,
       brand: json['brand'] as String,
@@ -89,7 +91,9 @@ class ProductModel extends Product {
     }
 
     return ProductModel(
-      id: int.tryParse(data.id ?? '0') ?? 0, // Convert String id to int, default to 0
+      id:
+          int.tryParse(data.id ?? '0') ??
+          0, // Convert String id to int, default to 0
       title: data.name, // Map 'name' from database to 'title' in entity
       description: data.description ?? '',
       brand: data.brand ?? '',

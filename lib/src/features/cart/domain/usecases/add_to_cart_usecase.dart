@@ -8,7 +8,7 @@ import 'package:ecommerce/src/features/products/domain/entities/product.dart';
 
 class AddToCartUseCase implements UseCase<CartItem, AddToCartParams> {
   final CartRepository repository;
-  
+
   AddToCartUseCase(this.repository);
 
   @override

@@ -6,7 +6,7 @@ import 'package:ecommerce/src/features/cart/domain/repositories/cart_repository.
 
 class RemoveFromCartUseCase implements UseCase<void, RemoveFromCartParams> {
   final CartRepository repository;
-  
+
   RemoveFromCartUseCase(this.repository);
 
   @override
@@ -22,10 +22,7 @@ class RemoveFromCartParams extends Params {
   final String userId;
   final int productId;
 
-  const RemoveFromCartParams({
-    required this.userId,
-    required this.productId,
-  });
+  const RemoveFromCartParams({required this.userId, required this.productId});
 
   @override
   List<Object?> get props => [userId, productId];

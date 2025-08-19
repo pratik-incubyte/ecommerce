@@ -8,6 +8,9 @@ import '../../features/products/presentation/pages/products_page.dart';
 import '../../features/products/presentation/pages/product_details_page.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/orders/presentation/pages/orders_page.dart';
+import '../../features/orders/presentation/pages/order_details_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/profile/presentation/pages/settings_page.dart';
 
 // Core
 import '../di/injection_container.dart';
@@ -72,6 +75,31 @@ class AppRouter {
             path: '/orders',
             name: 'orders',
             builder: (context, state) => const OrdersPage(),
+            routes: [
+              // Order details
+              GoRoute(
+                path: ':orderId',
+                name: 'order-details',
+                builder: (context, state) {
+                  final orderId = state.pathParameters['orderId']!;
+                  final userId = state.uri.queryParameters['userId'];
+                  return OrderDetailsPage(orderId: orderId, userId: userId);
+                },
+              ),
+            ],
+          ),
+          // Profile route
+          GoRoute(
+            path: '/profile',
+            name: 'profile',
+            builder: (context, state) => const ProfilePage(),
+            routes: [
+              GoRoute(
+                path: 'settings',
+                name: 'settings',
+                builder: (context, state) => const SettingsPage(),
+              ),
+            ],
           ),
         ],
       ),
@@ -166,58 +194,9 @@ class MainShell extends StatelessWidget {
         GoRouter.of(context).goNamed('orders');
         break;
       case 3:
-        _showProfileBottomSheet(context);
+        GoRouter.of(context).goNamed('profile');
         break;
     }
-  }
-
-  void _showProfileBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      builder: (BuildContext context) {
-        return Container(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.person),
-                title: const Text('Profile'),
-                subtitle: const Text('View and edit your profile'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Navigate to profile page when implemented
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
-                subtitle: const Text('App preferences and settings'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // TODO: Navigate to settings page when implemented
-                },
-              ),
-              const Divider(),
-              ListTile(
-                leading: const Icon(Icons.logout, color: Colors.red),
-                title: const Text(
-                  'Sign Out',
-                  style: TextStyle(color: Colors.red),
-                ),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Get AuthBloc from context and trigger logout
-                  final authBloc = getIt<AuthBloc>();
-                  authBloc.add(const AuthEvent.logout());
-                },
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
-        );
-      },
-    );
   }
 }
 

@@ -12,6 +12,7 @@ import 'auth_injection.dart';
 import 'products_injection.dart';
 import 'cart_injection.dart';
 import 'orders_injection.dart';
+import 'checkout_injection.dart';
 
 /// Service locator instance
 final getIt = GetIt.instance;
@@ -26,6 +27,7 @@ Future<void> initDependencies() async {
   await initProductsDependencies();
   await initCartDependencies();
   await initOrdersDependencies();
+  await initCheckoutDependencies();
 }
 
 /// Initialize core dependencies
