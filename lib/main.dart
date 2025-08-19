@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:app_links/app_links.dart';
 import 'src/firebase_options.dart';
 
 import 'src/core/di/injection_container.dart';
 import 'src/core/router/app_router.dart';
 import 'src/core/constants/app_constants.dart';
 import 'src/core/utils/firestore_sample_data.dart';
-import 'src/core/services/deep_link_service.dart';
 import 'src/core/notifications/domain/usecases/initialize_notifications.dart';
 import 'src/core/utils/usecase.dart';
 
@@ -25,6 +25,23 @@ void main() async {
   // Initialize push notifications
   final initializeNotifications = getIt<InitializeNotifications>();
   await initializeNotifications(NoParams());
+  
+  // Initialize deep linking
+  final appLinks = AppLinks();
+  // Get initial deep link if the app was launched from a link
+  final initialLink = await appLinks.getInitialLink();
+  if (initialLink != null) {
+    print('🔗 Initial deep link received: ${initialLink.toString()}');
+    print('🔗 Initial deep link path: ${initialLink.path}');
+    print('🔗 Initial deep link host: ${initialLink.host}');
+  }
+  
+  // Listen for deep links when the app is running
+  appLinks.uriLinkStream.listen((uri) {
+    print('🔗 Deep link received: ${uri.toString()}');
+    print('🔗 Deep link path: ${uri.path}');
+    print('🔗 Deep link host: ${uri.host}');
+  });
 
   // Add sample data to Firestore if collection is empty
   if (await FirestoreSampleData.isProductsCollectionEmpty()) {
@@ -34,28 +51,8 @@ void main() async {
   runApp(const ECommerceApp());
 }
 
-class ECommerceApp extends StatefulWidget {
+class ECommerceApp extends StatelessWidget {
   const ECommerceApp({super.key});
-
-  @override
-  State<ECommerceApp> createState() => _ECommerceAppState();
-}
-
-class _ECommerceAppState extends State<ECommerceApp> {
-  @override
-  void initState() {
-    super.initState();
-    // Initialize deep link service after the first frame is built
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      DeepLinkService().initialize(AppRouter.router);
-    });
-  }
-
-  @override
-  void dispose() {
-    DeepLinkService().dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {

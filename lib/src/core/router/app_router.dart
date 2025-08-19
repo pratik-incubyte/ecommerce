@@ -27,46 +27,39 @@ class AppRouter {
   static final GoRouter _router = GoRouter(
     navigatorKey: rootNavigatorKey,
     initialLocation: '/',
+    debugLogDiagnostics: true, // Enable debugging
     routes: [
-      // Deep link routes (outside of shell to avoid auth redirect issues)
+      // Standalone deep link routes (work outside shell navigation)
       GoRoute(
-        path: '/orders/:orderId',
-        name: 'order-details-deeplink',
+        path: '/products/:productId',
+        name: 'product-details-standalone',
         builder: (context, state) {
-          final orderId = state.pathParameters['orderId']!;
-          final userId = state.uri.queryParameters['userId'];
-          
-          // Try to get the authenticated user ID from the existing AuthBloc
-          String? authenticatedUserId;
-          try {
-            final authBloc = getIt<AuthBloc>();
-            authenticatedUserId = authBloc.state.whenOrNull(
-              authenticated: (user) => user.id,
-            );
-          } catch (e) {
-            // AuthBloc might not be available
-          }
+          final productId = state.pathParameters['productId']!;
           
           return BlocProvider(
             create: (_) => getIt<AuthBloc>(),
             child: AuthWrapper(
-              child: OrderDetailsPage(
-                orderId: orderId, 
-                userId: userId ?? authenticatedUserId,
+              child: ProductDetailsPage(
+                productId: productId,
               ),
             ),
           );
         },
       ),
       GoRoute(
-        path: '/products/:productId',
-        name: 'product-details-deeplink',
+        path: '/orders/:orderId',
+        name: 'order-details-standalone',
         builder: (context, state) {
-          final productId = state.pathParameters['productId']!;
+          final orderId = state.pathParameters['orderId']!;
+          final userId = state.uri.queryParameters['userId'];
+          
           return BlocProvider(
             create: (_) => getIt<AuthBloc>(),
             child: AuthWrapper(
-              child: ProductDetailsPage(productId: productId),
+              child: OrderDetailsPage(
+                orderId: orderId,
+                userId: userId,
+              ),
             ),
           );
         },
@@ -150,8 +143,31 @@ class AppRouter {
     redirect: (context, state) {
       final authBloc = getIt<AuthBloc>();
       final isAuthRoute = state.uri.path == '/auth';
-      final isDeepLink = state.uri.path.startsWith('/orders/') || 
-                        state.uri.path.startsWith('/products/');
+      
+      // Handle custom scheme deep links - GoRouter parses ecommerce://products/1 as host=products, path=/1
+      String actualPath = state.uri.path;
+      if (state.uri.scheme == 'ecommerce' && state.uri.host.isNotEmpty) {
+        // Convert ecommerce://products/1 to /products/1
+        actualPath = '/${state.uri.host}${state.uri.path}';
+      }
+      
+      final isDeepLink = actualPath.startsWith('/orders/') || 
+                        actualPath.startsWith('/products/');
+      
+      // Debug log for deep link handling
+      print('🚀 Router redirect - Full URI: ${state.uri.toString()}');
+      print('🚀 Router redirect - Original Path: ${state.uri.path}');
+      print('🚀 Router redirect - Host: ${state.uri.host}');
+      print('🚀 Router redirect - Actual Path: $actualPath');
+      print('🚀 Router redirect - Query: ${state.uri.query}');
+      print('🚀 Router redirect - IsAuthRoute: $isAuthRoute, IsDeepLink: $isDeepLink');
+      print('🚀 Router redirect - Auth state: ${authBloc.state}');
+      
+      // If this is a custom scheme deep link, redirect to the correct path
+      if (state.uri.scheme == 'ecommerce' && state.uri.host.isNotEmpty) {
+        print('🚀 Redirecting custom scheme to: $actualPath');
+        return actualPath;
+      }
 
       return authBloc.state.when(
         initial: () {
