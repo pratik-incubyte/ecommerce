@@ -105,7 +105,7 @@ class DeepLinkService {
       
       // Handle path-based format: ecommerce://path/to/route
       if (host.isEmpty && pathSegments.isNotEmpty) {
-        return '/' + pathSegments.join('/');
+        return '/${pathSegments.join('/')}';
       }
       
       // Handle host-based format with path

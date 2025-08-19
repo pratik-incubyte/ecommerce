@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/services.dart';
 import 'src/firebase_options.dart';
 
 import 'src/core/di/injection_container.dart';
 import 'src/core/router/app_router.dart';
 import 'src/core/constants/app_constants.dart';
 import 'src/core/utils/firestore_sample_data.dart';
-import 'src/core/services/deep_link_handler.dart';
+import 'src/core/services/deep_link_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,15 +39,15 @@ class _ECommerceAppState extends State<ECommerceApp> {
   @override
   void initState() {
     super.initState();
-    // Initialize deep link handler after the first frame is built
+    // Initialize deep link service after the first frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      DeepLinkHandler.initialize(AppRouter.router);
+      DeepLinkService().initialize(AppRouter.router);
     });
   }
 
   @override
   void dispose() {
-    DeepLinkHandler.dispose();
+    DeepLinkService().dispose();
     super.dispose();
   }
 
