@@ -365,7 +365,7 @@ class OrderDetailsView extends StatelessWidget {
                   style: const TextStyle(color: Colors.grey),
                 ),
                 Text(
-                  'Price: \$${item.price.toStringAsFixed(2)}',
+                  'Price: \$${item.productPrice.toStringAsFixed(2)}',
                   style: const TextStyle(color: Colors.grey),
                 ),
               ],
