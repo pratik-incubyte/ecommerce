@@ -116,31 +116,6 @@ class AddressStep extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Progress indicator
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Step 1 of 4',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    LinearProgressIndicator(
-                      value: 0.25,
-                      backgroundColor: Colors.grey.shade200,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppConstants.defaultPadding),
               // Next button
               Flexible(
                 child: ElevatedButton.icon(

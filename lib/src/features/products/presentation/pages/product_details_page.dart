@@ -5,6 +5,7 @@ import '../../../../core/constants/app_constants.dart';
 import '../../../../core/di/injection_container.dart';
 import '../bloc/product_details_bloc.dart';
 import '../../../cart/presentation/bloc/cart_bloc.dart';
+import '../../../auth/presentation/bloc/auth_bloc.dart';
 
 class ProductDetailsPage extends StatelessWidget {
   final String productId;
@@ -23,7 +24,13 @@ class ProductDetailsPage extends StatelessWidget {
               ),
             ),
         ),
-        BlocProvider(create: (_) => getIt<CartBloc>()),
+        BlocProvider(
+          create: (_) {
+            final cartBloc = getIt<CartBloc>();
+            // Load cart on initialization to get current cart count
+            return cartBloc;
+          },
+        ),
       ],
       child: ProductDetailsView(productId: productId),
     );
@@ -101,6 +108,7 @@ class ProductDetailsView extends StatelessWidget {
                       GoRouter.of(context).goNamed('cart');
                     },
                   ),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             },
@@ -341,34 +349,43 @@ class ProductDetailsView extends StatelessWidget {
           children: [
             Expanded(
               flex: 2,
-              child: ElevatedButton.icon(
-                onPressed: isAddingToCart
-                    ? null
-                    : () {
-                        context.read<CartBloc>().add(
-                          CartEvent.addToCart(
-                            userId: 'user123', // TODO: Get real user ID
-                            product: product,
-                            quantity: 1,
-                          ),
-                        );
-                      },
-                icon: isAddingToCart
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.add_shopping_cart),
-                label: Text(isAddingToCart ? 'Adding...' : 'Add to Cart'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: AppConstants.defaultPadding,
-                  ),
-                ),
+              child: BlocBuilder<AuthBloc, AuthState>(
+                builder: (context, authState) {
+                  final userId = authState.maybeWhen(
+                    authenticated: (user) => user.id,
+                    orElse: () => 'user123', // Fallback for development
+                  );
+
+                  return ElevatedButton.icon(
+                    onPressed: isAddingToCart
+                        ? null
+                        : () {
+                            context.read<CartBloc>().add(
+                              CartEvent.addToCart(
+                                userId: userId,
+                                product: product,
+                                quantity: 1,
+                              ),
+                            );
+                          },
+                    icon: isAddingToCart
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.add_shopping_cart),
+                    label: Text(isAddingToCart ? 'Adding...' : 'Add to Cart'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppConstants.defaultPadding,
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
             const SizedBox(width: AppConstants.defaultPadding),

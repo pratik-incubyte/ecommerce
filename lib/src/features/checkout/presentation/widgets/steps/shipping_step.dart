@@ -90,6 +90,7 @@ class ShippingStep extends StatelessWidget {
             border: Border(top: BorderSide(color: Colors.grey.shade200)),
           ),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // Back button
               Flexible(
@@ -106,32 +107,7 @@ class ShippingStep extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppConstants.defaultPadding),
-              // Progress indicator
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Step 2 of 4',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    LinearProgressIndicator(
-                      value: 0.5,
-                      backgroundColor: Colors.grey.shade200,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Theme.of(context).primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: AppConstants.defaultPadding),
-              // Next button
+
               Flexible(
                 child: ElevatedButton.icon(
                   onPressed: onNext,
