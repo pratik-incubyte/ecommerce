@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:equatable/equatable.dart';
 import 'package:ecommerce/src/core/error/failures.dart';
 import 'package:ecommerce/src/core/utils/usecase.dart';
 import 'package:ecommerce/src/features/cart/domain/repositories/cart_repository.dart';

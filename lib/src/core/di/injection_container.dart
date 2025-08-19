@@ -1,6 +1,7 @@
 import 'package:get_it/get_it.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // Core
 import '../network/network_info.dart';
@@ -14,6 +15,7 @@ import 'checkout_injection.dart';
 import 'notification_injection.dart';
 import 'orders_injection.dart';
 import 'products_injection.dart';
+import 'profile_injection.dart';
 
 /// Service locator instance
 final getIt = GetIt.instance;
@@ -30,6 +32,7 @@ Future<void> initDependencies() async {
   await initOrdersDependencies();
   await initCheckoutDependencies();
   initNotificationDependencies(getIt);
+  initProfileDependencies();
 }
 
 /// Initialize core dependencies
@@ -37,6 +40,11 @@ Future<void> _initCore() async {
   // External dependencies
   getIt.registerLazySingleton<Connectivity>(() => Connectivity());
   getIt.registerLazySingleton<Dio>(() => Dio());
+  
+  // SharedPreferences
+  final sharedPreferences = await SharedPreferences.getInstance();
+  getIt.registerLazySingleton<SharedPreferences>(() => sharedPreferences);
+  
 
   // Network
   getIt.registerLazySingleton<NetworkInfo>(
