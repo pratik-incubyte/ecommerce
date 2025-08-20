@@ -1,0 +1,14 @@
+{
+  "id": "1",
+  "orderId": "order_123",
+  "productId": 1,
+  "productName": "iPhone 15 Pro Max",
+  "productSku": "IPHONE15-PM-256GB-TITAN",
+  "productPrice": 1199.99,
+  "quantity": 2,
+  "totalPrice": 2399.98,
+  "selectedVariants": {
+    "color": "Natural Titanium",
+    "storage": "256GB"
+  }
+}

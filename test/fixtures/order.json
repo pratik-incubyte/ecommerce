@@ -1,0 +1,47 @@
+{
+  "id": "order_123",
+  "serverId": "server_order_456",
+  "userId": "user123",
+  "items": [
+    {
+      "id": "1",
+      "orderId": "order_123",
+      "productId": 1,
+      "productName": "iPhone 15 Pro Max",
+      "productSku": "IPHONE15-PM-256GB-TITAN",
+      "productPrice": 1199.99,
+      "quantity": 2,
+      "totalPrice": 2399.98,
+      "selectedVariants": {
+        "color": "Natural Titanium",
+        "storage": "256GB"
+      }
+    }
+  ],
+  "status": "pending",
+  "totalAmount": 2399.98,
+  "discountAmount": 0.0,
+  "shippingAddress": {
+    "name": "John Doe",
+    "street": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "zipCode": "10001",
+    "country": "USA"
+  },
+  "billingAddress": {
+    "name": "John Doe",
+    "street": "123 Main St",
+    "city": "New York",
+    "state": "NY",
+    "zipCode": "10001",
+    "country": "USA"
+  },
+  "paymentMethod": "credit_card",
+  "paymentStatus": "pending",
+  "shippingMethod": "standard",
+  "trackingNumber": null,
+  "notes": "Please deliver between 9 AM and 5 PM",
+  "createdAt": "2024-01-15T10:30:00.000Z",
+  "updatedAt": "2024-01-15T10:30:00.000Z"
+}

@@ -1,0 +1,16 @@
+{
+  "id": "test_user_id_123",
+  "email": "john.doe@example.com",
+  "first_name": "John",
+  "last_name": "Doe Updated",
+  "phone": "+1987654321",
+  "profile_picture": "https://example.com/profiles/john_doe_new.jpg",
+  "address": "456 Oak Avenue",
+  "city": "Los Angeles",
+  "country": "United States",
+  "postal_code": "90210",
+  "is_verified": true,
+  "is_active": true,
+  "created_at": "2024-01-01T00:00:00.000Z",
+  "updated_at": "2024-01-20T14:20:30.000Z"
+}
